@@ -1,0 +1,4 @@
+[submodule "spinningup"]
+	path = spinningup
+	url = https://github.com/TheMonocledHamster/spinningup.git
+	branch = spinup-only
