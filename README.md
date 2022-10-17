@@ -1,4 +1,4 @@
-Actor-Critic Model for Graph-design optimization using Graph Convolutional Networks.
+Actor-Critic Model for Optimal Graph Design using Graph Convolutional Networks.
 
 Adapted from [NeuroPlan](https://github.com/netx-repo/neuroplan).
 
