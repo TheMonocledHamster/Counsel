@@ -2,28 +2,28 @@ import gym
 
 class CustomEnv(gym.Env):
     def __init__(self) -> None:
-        super().__init__()
+        pass
     
-    def preprocess(self):
+    def preprocess(self)->None:
         pass
 
-    def step(self):
-        self
+    def step(self)->None:
+        pass
     
-    def reset(self):
+    def reset(self)->None:
         pass
 
-    def get_obs(self):
+    def get_obs(self)->None:
         pass
 
-    def terminate(self):
+    def terminate(self)->None:
         pass
 
-    def save_if_best(self):
+    def save_if_best(self)->None:
         pass
 
-    def is_visited(self):
+    def is_visited(self)->None:
         pass
 
-    def save_trajectory(self):
+    def save_trajectory(self)->None:
         pass
