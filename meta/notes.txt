@@ -1,0 +1,5 @@
+Do we really need to track utilization per instance?
+Considering that we're running each component as a combination of flavors, wouldn't tracking utilization per component suffice?
+
+Replica components? In which case, tracking utilization per component instance as well as overall utilization of that component might be useful.
+

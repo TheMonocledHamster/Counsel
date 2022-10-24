@@ -29,10 +29,12 @@ class RL(object):
             self.max_n_delta_bw, self.steps_per_epoch, self.delta_bw]
         self.log_dir = '_'.join([str(i) for i in log_dir_name_list])
 
+
     def get_env(self):
         self.env = CustomEnv(self.topo, log_dir=self.log_dir, graph_encoder=self.graph_encoder, \
             max_n_delta_bw=self.max_n_delta_bw, max_action=self.max_action, steps_per_epoch=self.steps_per_epoch, delta_bw=self.delta_bw, checker_mode=self.checker_mode)
         return self.env
+
 
     def run_training(self):
         logger_kwargs = dict(output_dir="results/{}".format(self.log_dir), exp_name="test")
