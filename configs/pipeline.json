@@ -1,0 +1,25 @@
+{
+    "Extract":
+    {
+        "mini": 1,
+        "xlarge": 1
+    },
+
+    "Transform":
+    {
+        "large": 2,
+        "xlarge": 3
+    },
+
+    "Load":
+    {
+        "small": 2,
+        "large": 1
+    },
+    
+    "Analyze":
+    {
+        "medium": 3,
+        "xlarge": 2
+    }
+}

@@ -11,3 +11,6 @@ What - RL Agent Determines
 When - RL Agent Determines (With TTL to prevent thrashing)
 How - Defined in Component
 Where - Determined by backpressure
+
+Node: Intermediate Storage
+Edge: Computational Component

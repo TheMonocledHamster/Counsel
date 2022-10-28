@@ -44,8 +44,7 @@ class RL(object):
         ac = GCNActorCritic
 
         vpg_pytorch(self.get_env, enable_mpi=False, non_blocking=False, gamma=1,actor_critic=ac,\
-            max_ep_len=self.max_action, seed=8, device=device, \
-            model_path=self.model_path, \
+            max_ep_len=self.max_action, seed=8, device=device, model_path=self.model_path, \
             ac_kwargs=ac_kwargs,epochs=self.epoch_num,steps_per_epoch=self.steps_per_epoch,logger_kwargs=logger_kwargs)
 
         self.env.terminate()
