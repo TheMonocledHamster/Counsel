@@ -1,6 +1,6 @@
 import time, torch
 
-from rl.custom_env import CustomEnv
+from rl.pipeline_env import Pipeline
 from rl.ac import GCNActorCritic
 from spinningup.spinup import vpg_pytorch
 
@@ -31,7 +31,7 @@ class RL(object):
 
 
     def get_env(self):
-        self.env = CustomEnv(self.topo, log_dir=self.log_dir, graph_encoder=self.graph_encoder, \
+        self.env = Pipeline(self.topo, log_dir=self.log_dir, graph_encoder=self.graph_encoder, \
             max_n_delta_bw=self.max_n_delta_bw, max_action=self.max_action, steps_per_epoch=self.steps_per_epoch, delta_bw=self.delta_bw, checker_mode=self.checker_mode)
         return self.env
 

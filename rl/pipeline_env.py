@@ -1,6 +1,6 @@
 import gym
 
-class CustomEnv(gym.Env):
+class Pipeline(gym.Env):
     def __init__(self) -> None:
         pass
     

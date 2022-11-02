@@ -7,6 +7,9 @@ from component import Component
 from state import State
 
 class Pipeline(object):
+    """
+        Representation of Computational Pipeline as a graph
+    """
     def __init__(self) -> None:
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
@@ -17,6 +20,7 @@ class Pipeline(object):
 
     def clear_components(self)->None:
         self.components = {}
+        self.states = {}
     
 
     def _init_components(self,file_path:str='')->None:
@@ -45,7 +49,8 @@ class Pipeline(object):
         graph.add_nodes_from(self.states.keys())
 
         for comp in self.components.values():
-            graph.add_edge(comp.prev_state.name, comp.next_state.name, capacity=comp.get_resources())
+            graph.add_edge(comp.prev_state.name, comp.next_state.name, \
+                capacity=comp.get_resources())
 
         return graph
 
@@ -59,5 +64,6 @@ if __name__ == '__main__':
         print(pipeline.components[comp].get_instances())
         print(pipeline.components[comp].get_resources())
         print(pipeline.components[comp].util([4,12]))
-        print(pipeline.components[comp].prev_state,pipeline.components[comp].next_state)
+        print(pipeline.components[comp].prev_state, \
+            pipeline.components[comp].next_state)
         print()
