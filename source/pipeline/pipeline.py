@@ -21,14 +21,14 @@ class Pipeline(object):
     def clear_components(self)->None:
         self.components = {}
         self.states = {}
-    
+
 
     def _init_components(self,file_path:str='')->None:
         if file_path == '':
             file_path = os.path.join(os.path.dirname(__file__), \
                 '../configs/pipeline.json')
         pipeline_config = json.load(open(file_path))
-        
+
         for component in pipeline_config:
             self.components[component] = Component(component)
             for instance in pipeline_config[component]:
