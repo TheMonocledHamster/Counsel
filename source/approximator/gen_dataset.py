@@ -1,4 +1,4 @@
-from .data_parser import dparser
+from data_parser import dparser
 from math import ceil
 import sys
 import csv

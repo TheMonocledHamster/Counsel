@@ -9,9 +9,19 @@ from pipeline.pipeline import Pipeline
 
 
 class Pipeline(gym.Env):
-    def __init__(self, pipeline:Pipeline, log_dir, graph_encoder, \
+    def __init__(self, pipeline:Pipeline, graph_encoder, \
         max_actions=512, steps_per_epoch=2048) -> None:
-        pass
+        self.max_actions = max_actions
+        self.steps_per_epoch = steps_per_epoch
+        
+        self.max_reward = None
+        self.opt_target = None
+        self.action_count = 0
+
+        self.graph_encoder = graph_encoder
+
+        self.pipeline = pipeline
+
     
     def preprocess(self)->None:
         pass
