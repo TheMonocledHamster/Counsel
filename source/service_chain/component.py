@@ -19,7 +19,6 @@ class Component(object):
     * remove_instances(flavor:str, count:int)->bool : remove n instances of flavor, default n=1
     * get_instances()->list[str] : get list of instances in the component
     * get_resources()->list[int] : get total resources of the component
-    * util(req:list[int])->list[float] : get total resource utilization of the component
     * specify_state(prev_state:State, next_state:State)->None : specify position of the component in the pipeline
     * step()->None : update the component after each timestep
     """
@@ -83,6 +82,3 @@ class Component(object):
             self.resources[0] += count * self.flavors[flavor][0]
             self.resources[1] += count * self.flavors[flavor][1]
         return self.resources
-
-    def util(self,req:list[int])->tuple[float,float]:
-        return (req[0]/self.resources[0], req[1]/self.resources[1])
