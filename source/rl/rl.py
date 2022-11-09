@@ -1,16 +1,16 @@
 import time, torch
 
-from rl.pipeline_env import Pipeline
+from source.rl.env import CustomEnv
 from rl.ac import GCNActorCritic
 from spinningup.spinup import vpg_pytorch
 
 class RL(object):
-    def __init__(self, topo, graph_encoder="GCN", num_gnn_layer=2, \
+    def __init__(self, chain, graph_encoder="GCN", num_gnn_layer=2, \
             max_n_delta_bw=1, hidden_sizes=(256, 256), \
             epoch_num=1024, max_action=512,steps_per_epoch=1024,\
             delta_bw=100, checker_mode="all", model_path=None):
         
-        self.topo = topo
+        self.chain = chain
         
         self.graph_encoder = graph_encoder
         self.num_gnn_layer = num_gnn_layer
@@ -25,13 +25,13 @@ class RL(object):
         self.checker_mode = checker_mode
         self.model_path = model_path
         
-        log_dir_name_list = [int(time.time()), len(self.topo.ip.links), self.graph_encoder, \
+        log_dir_name_list = [int(time.time()), len(self.chain.components), self.graph_encoder, \
             self.max_n_delta_bw, self.steps_per_epoch, self.delta_bw]
         self.log_dir = '_'.join([str(i) for i in log_dir_name_list])
 
 
     def get_env(self):
-        self.env = Pipeline(self.topo, log_dir=self.log_dir, graph_encoder=self.graph_encoder, \
+        self.env = CustomEnv(self.chain, log_dir=self.log_dir, graph_encoder=self.graph_encoder, \
             max_n_delta_bw=self.max_n_delta_bw, max_action=self.max_action, steps_per_epoch=self.steps_per_epoch, delta_bw=self.delta_bw, checker_mode=self.checker_mode)
         return self.env
 
