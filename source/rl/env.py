@@ -1,5 +1,6 @@
 from time import time
 import gym
+import gym.spaces
 from copy import deepcopy
 import os
 import sys
@@ -12,8 +13,8 @@ from service_chain.chain import Chain
 
 
 class CustomEnv(gym.Env):
-    def __init__(self, chain:Chain, log_dir:str, graph_encoder:str, budget, flavor_count, \
-        max_actions=512, steps_per_epoch=2048) -> None:
+    def __init__(self, chain:Chain, log_dir:str, graph_encoder:str, budget,
+                flavor_count, max_actions=512, steps_per_epoch=2048) -> None:
 
         self.log_dir = log_dir
         self.max_actions = max_actions
@@ -58,19 +59,13 @@ class CustomEnv(gym.Env):
         if not os.path.exists(self.chain_path):
             os.makedirs(self.chain_path)
         
-        self.cum_act_count = 0 # Record Epoch Number
-        self.traj_set = set()
-        self.main_traj_stats = []
-        traj_path = "results/{}/traj.txt".format(self.log_dir)
-        self.traj_fptr = open(traj_path, "w")
-        
 
     def compute_action_space(self)->None:
-        pass
+        raise NotImplementedError
 
 
     def get_feasible_actions(self)->None:
-        pass
+        raise NotImplementedError
 
     
     def step(self,action)->None:
@@ -124,7 +119,8 @@ class CustomEnv(gym.Env):
     def terminate(self)->None:
         self.action_fptr.write("Epoch Count: {}, node_num:{}\n"\
             .format(self.epoch_idx, self.max_node))
-        self.action_fptr.write("Time: {}s\n".format(int(time())-self.start_time))
+        self.action_fptr.write("Time: {}s\n".format(int(time())
+                                            - self.start_time))
 
 
     def save_if_best(self)->None:
