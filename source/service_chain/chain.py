@@ -30,15 +30,16 @@ class Chain(object):
 
     def _init_components(self,file_path:str='')->None:
         if file_path == '':
-            file_path = os.path.join(os.path.dirname(__file__), \
-                '../configs/initial_chain.json')
+            file_path = os.path.join(os.path.dirname(__file__),
+                                     '../configs/initial_chain.json')
         chain_config = json.load(open(file_path))
 
         for component in chain_config:
             self.components[component] = Component(component)
             for instance in chain_config[component]:
-                self.components[component].add_instances(instance, \
-                    chain_config[component][instance])
+                self.components[component].add_instances(
+                    instance, chain_config[component][instance]
+                )
 
     def _init_states(self)->None:
         self.states[0] = State('Initial')
@@ -58,15 +59,16 @@ class Chain(object):
         graph = nx.DiGraph()
         graph.add_nodes_from(self.states.keys())
         for comp in self.components.values():
-            graph.add_edge(comp.prev_state.name, comp.next_state.name, \
-                capacity=comp.get_resources())
+            graph.add_edge(comp.prev_state.name, comp.next_state.name,
+                           capacity=comp.get_resources())
         return graph
     
     def get_adj_matrix(self)->np.ndarray:
         np_array = np.zeros([len(self.states),len(self.states)],dtype=int)
         for i,ic in enumerate(self.components.keys()):
             for j,jc in enumerate(self.components.keys()):
-                if self.components[ic].next_state == self.components[jc].prev_state:
+                if (self.components[ic].next_state == 
+                    self.components[jc].prev_state):
                     np_array[i][j] = 1
         return np_array
 
@@ -75,7 +77,8 @@ class Chain(object):
         # Implement Capacity Logic Here
         raise NotImplementedError
         # Z-Score
-        np_array = (np_array - np.mean(np_array))/np.std(np_array) + np.finfo(np.float32).eps
+        np_array = ((np_array - np.mean(np_array))/np.std(np_array) 
+                    + np.finfo(np.float32).eps)
         return np_array
 
 

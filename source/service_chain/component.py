@@ -4,25 +4,37 @@ from collections import Counter, OrderedDict
 
 from state import State
 
-flavors_config = os.path.join(os.path.dirname(__file__), '../configs/flavors.json')
+flavors_config = os.path.join(os.path.dirname(__file__), 
+                                '../configs/flavors.json')
 
 
 class Component(object):
     """
     Params 
-    * name (str): name of the component
-    * TTL (int): time to live of the instance
+    * name (str)
+    : name of the component
+    * TTL (int)
+    : time to live of the instance
+    
     Returns
     * Component object
+    
     Methods
-    * add_instances(flavor:str, count:int)->None  : add n instances of flavor, default n=1
-    * remove_instances(flavor:str, count:int)->bool : remove n instances of flavor, default n=1
-    * get_instances()->list[str] : get list of instances in the component
-    * get_resources()->list[int] : get total resources of the component
-    * specify_state(prev_state:State, next_state:State)->None : specify position of the component in the pipeline
-    * step()->None : update the component after each timestep
+    * add_instances(flavor:str, count:int)->None 
+    : add n instances of flavor, default n=1
+    * remove_instances(flavor:str, count:int)->bool
+    : remove n instances of flavor, default n=1
+    * get_instances()->list[str] 
+    : get list of instances in the component
+    * get_resources()->list[int] 
+    : get total resources of the component
+    * specify_state(prev_state:State, next_state:State)->None 
+    : specify position of the component in the pipeline
+    * step()->None 
+    : update the component after each timestep
     """
-    def __init__(self, name:str, prev_state:State=None, next_state:State=None, TTL:int=3)->None:
+    def __init__(self, name:str, prev_state:State=None, 
+                next_state:State=None, TTL:int=3)->None:
         self.name = name
         self.flavors = OrderedDict(json.load(open(flavors_config)))
         for flavor in self.flavors:

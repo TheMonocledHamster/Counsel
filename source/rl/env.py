@@ -12,8 +12,8 @@ from service_chain.chain import Chain
 
 
 class CustomEnv(gym.Env):
-    def __init__(self, chain:Chain, log_dir:str, graph_encoder:str, budget, flavor_count, \
-        max_actions=512, steps_per_epoch=2048) -> None:
+    def __init__(self, chain:Chain, log_dir:str, graph_encoder:str, budget,
+                flavor_count, max_actions=512, steps_per_epoch=2048) -> None:
 
         self.log_dir = log_dir
         self.max_actions = max_actions
@@ -124,7 +124,8 @@ class CustomEnv(gym.Env):
     def terminate(self)->None:
         self.action_fptr.write("Epoch Count: {}, node_num:{}\n"\
             .format(self.epoch_idx, self.max_node))
-        self.action_fptr.write("Time: {}s\n".format(int(time())-self.start_time))
+        self.action_fptr.write("Time: {}s\n".format(int(time())
+                                            - self.start_time))
 
 
     def save_if_best(self)->None:

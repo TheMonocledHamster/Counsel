@@ -10,12 +10,14 @@ from torch.nn.parameter import Parameter
 import functools
 
 
-def mlp(sizes, activation, dropout_flag=False, dropout=0.5, output_activation=nn.Identity):
+def mlp(sizes, activation, dropout_flag=False, dropout=0.5, 
+        output_activation=nn.Identity)->nn.Sequential:
     layers = []
     for j in range(len(sizes)-1):
         act = activation if j < len(sizes)-2 else output_activation
         if dropout_flag:
-            layers += [nn.Linear(sizes[j], sizes[j+1]), act(), nn.Dropout(dropout)]
+            layers += [nn.Linear(sizes[j], sizes[j+1]), 
+                       act(), nn.Dropout(dropout)]
         else:
             layers += [nn.Linear(sizes[j], sizes[j+1]), act()]
     return nn.Sequential(*layers)
@@ -69,9 +71,11 @@ class GCN(nn.Module):
         # reconstruct state_node and state_adj from flatten_obs
         if (len(obs.size())==3):
             # batch
-            adj_adjust, h_0 = torch.split(obs,[self.node_num, self.feature_num],dim=2)
+            adj_adjust, h_0 = torch.split(obs,
+                [self.node_num, self.feature_num],dim=2)
         else:
-            adj_adjust, h_0 = torch.split(obs,[self.node_num, self.feature_num],dim=1)
+            adj_adjust, h_0 = torch.split(obs,
+                [self.node_num, self.feature_num],dim=1)
 
         for gcn in self.gcn_list:
             h_0 = F.relu(gcn(h_0, adj_adjust))
@@ -105,10 +109,12 @@ class Actor(nn.Module):
 
 class GCNCategoricalActor(Actor):
 
-    def __init__(self, feature_num, node_num, gcn, hidden_sizes, act_num, activation):
+    def __init__(self, feature_num, node_num, gcn, 
+                    hidden_sizes, act_num, activation):
         super().__init__()
         self.GCN = gcn
-        self.logits_net = mlp([feature_num*node_num] + list(hidden_sizes) + [act_num], activation)
+        self.logits_net = mlp([feature_num*node_num] + 
+                              list(hidden_sizes) + [act_num], activation)
 
     # logits is the log probability, log_p = ln(p)
     def _distribution(self, obs):
@@ -130,14 +136,17 @@ class GCNCritic(nn.Module):
     def __init__(self, feature_num, node_num, gcn, hidden_sizes, activation):
         super().__init__()
         self.GCN = gcn
-        self.v_net = mlp([feature_num*node_num] + list(hidden_sizes) + [1], activation)
+        self.v_net = mlp([feature_num*node_num] + 
+                            list(hidden_sizes) + [1], activation)
 
     def forward(self, obs):
-        return torch.squeeze(self.v_net(self.GCN(obs)), -1) # Critical to ensure v has right shape.
+        # Squeeze is critical to ensure v has right shape.
+        return torch.squeeze(self.v_net(self.GCN(obs)), -1) 
 
 
 class GCNActorCritic(nn.Module):
-    def __init__(self, observation_space, action_space, graph_encoder_hidden=256, num_gnn_layer=2, 
+    def __init__(self, observation_space, action_space, 
+                 graph_encoder_hidden=256, num_gnn_layer=2, 
                  hidden_sizes=(64,64), activation=nn.ReLU, device='cpu'):
         super().__init__()
         self.device = device
@@ -146,12 +155,16 @@ class GCNActorCritic(nn.Module):
         feature_num = observation_space.shape[1] - node_num
         
         act_num = action_space.n
-        self.GCN = GCN(feature_num, node_num, graph_encoder_hidden, num_gnn_layer)
-        self.pi = GCNCategoricalActor(feature_num, node_num, self.GCN, hidden_sizes, act_num, activation)
+        self.GCN = GCN(feature_num, node_num, 
+                       graph_encoder_hidden, num_gnn_layer)
+        self.pi = GCNCategoricalActor(feature_num, node_num, self.GCN, 
+                                      hidden_sizes, act_num, activation)
 
         # build value function
-        self.v = GCNCritic(feature_num, node_num, self.GCN, hidden_sizes, activation)
-        params_num = sum(functools.reduce( lambda a, b: a*b, x.size()) for x in self.parameters())
+        self.v = GCNCritic(feature_num, node_num, self.GCN, 
+                           hidden_sizes, activation)
+        params_num = sum(functools.reduce( lambda a, b: a*b, x.size()) 
+                         for x in self.parameters())
         print("# of trainable params:{}".format(params_num))
 
     def step(self, obs, mask):
