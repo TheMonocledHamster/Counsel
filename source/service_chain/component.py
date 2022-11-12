@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from collections import Counter, OrderedDict
 
@@ -91,6 +92,21 @@ class Component(object):
     def get_resources(self)->list[int]:
         self.resources = [0,0]
         for flavor, count in self.config.items():
-            self.resources[0] += count * self.flavors[flavor][0]
-            self.resources[1] += count * self.flavors[flavor][1]
+            self.resources[0] += count * self.flavors[flavor][1]
+            self.resources[1] += count * self.flavors[flavor][2]
         return self.resources
+    
+    def resource_norm(self, budget:list[int])->float:
+        self.get_resources()
+        return math.sqrt( (self.resources[0]/budget[0])**2
+                        + (self.resources[1]/budget[1])**2 )
+
+if __name__ == '__main__':
+    c = Component('test')
+    c.add_instances('small', 3)
+    c.add_instances('medium', 2)
+    c.add_instances('large', 1)
+    print(c.get_instances())
+    print(c.get_resources())
+    print(c.resource_norm([100,120]))
+    print(c.resource_norm([120,100]))

@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 import networkx as nx
 import numpy as np
+from scipy import stats
 
 from component import Component
 from state import State
@@ -13,7 +14,9 @@ class Chain(object):
     """
         Representation of Computational Chain as a graph
     """
-    def __init__(self) -> None:
+    def __init__(self, budget:list[int]) -> None:
+        self.budget = budget
+
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
 
@@ -52,9 +55,9 @@ class Chain(object):
             comp.specify_state(self.states[i], self.states[i+1])
     
 
-    def reset(self)->None:
+    def reset(self, budget:list[int])->None:
         self._clear_components()
-        self.__init__()
+        self.__init__(budget)
 
 
     def generate_graph(self)->nx.DiGraph:
@@ -76,23 +79,19 @@ class Chain(object):
 
     def get_features(self)->np.ndarray:
         np_array = np.zeros([len(self.components),len(self.components)])
-        # Implement Capacity Logic Here
-        raise NotImplementedError
-        # Z-Score
-        np_array = ((np_array - np.mean(np_array))/np.std(np_array) 
-                    + np.finfo(np.float32).eps)
-        return np_array
+        for idx,comp in enumerate(self.components.values()):
+            np_array[idx][0] = comp.resource_norm(self.budget)
+        return np.nan_to_num(stats.zscore(np_array))
 
 
 if __name__ == '__main__':
-    chain = Chain()
-    for comp in chain.components:
-        print(comp)
-        print(chain.components[comp].get_instances())
-        print(chain.components[comp].get_resources())
-        print(chain.components[comp].util([4,12]))
-        print(chain.components[comp].prev_state, \
-            chain.components[comp].next_state)
-        print()
-        print(chain.get_adj_matrix())
-        print()
+    chain = Chain([1,2])
+    # for comp in chain.components.values():
+    #     print(comp)
+    #     print(comp.get_instances())
+    #     print(comp.get_resources())
+    #     print(comp.prev_state, comp.next_state)
+    #     print()
+    print(chain.get_adj_matrix())
+    print()
+    print(chain.get_features())

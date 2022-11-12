@@ -3,7 +3,10 @@ import torch
 
 from source.rl.env import CustomEnv
 from rl.ac import GCNActorCritic
-from spinningup.spinup import vpg_pytorch
+from spinningup.spinup import vpg_pytorch as vpg, \
+                              sac_pytorch as sac, \
+                              ppo_pytorch as ppo, \
+                              td3_pytorch as td3
 
 class RL(object):
     def __init__(self, chain, graph_encoder="GCN", num_gnn_layer=2,
@@ -43,7 +46,7 @@ class RL(object):
         return self.env
 
 
-    def run_training(self):
+    def run_training(self, algo):
         logger_kwargs = dict(output_dir="results/{}".format(self.log_dir), 
                              exp_name="test")
         ac_kwargs = dict(graph_encoder_hidden=256, 
@@ -53,11 +56,34 @@ class RL(object):
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         ac = GCNActorCritic
 
-        vpg_pytorch(self.get_env, enable_mpi=False, non_blocking=False, gamma=1,
-                    actor_critic=ac, max_ep_len=self.max_action, seed=8, 
-                    device=device, model_path=self.model_path, 
-                    ac_kwargs=ac_kwargs, epochs=self.epoch_num, 
-                    steps_per_epoch=self.steps_per_epoch, 
-                    logger_kwargs=logger_kwargs)
+        if algo == "vpg":
+            vpg(self.get_env, enable_mpi=False, non_blocking=False, gamma=1,
+                actor_critic=ac, max_ep_len=self.max_action, seed=8, 
+                device=device, model_path=self.model_path, 
+                ac_kwargs=ac_kwargs, epochs=self.epoch_num, 
+                steps_per_epoch=self.steps_per_epoch, 
+                logger_kwargs=logger_kwargs)
+        
+        elif algo == "ppo":
+            # TODO verify hyperparameters
+            ppo(self.get_env, enable_mpi=False, non_blocking=False, gamma=0.98,
+                actor_critic=ac, max_ep_len=self.max_action, seed=8,
+                clip_ratio=0.1, device=device, model_path=self.model_path,
+                ac_kwargs=ac_kwargs, epochs=self.epoch_num,
+                steps_per_epoch=self.steps_per_epoch,
+                logger_kwargs=logger_kwargs)
+        
+        elif algo == "sac":
+            # TODO fix parameters
+            sac(self.get_env, enable_mpi=False, non_blocking=False, gamma=0.99,
+                actor_critic=ac, max_ep_len=self.max_action, seed=8,
+                device=device, model_path=self.model_path,
+                ac_kwargs=ac_kwargs, epochs=self.epoch_num,
+                steps_per_epoch=self.steps_per_epoch,
+                logger_kwargs=logger_kwargs)
+        
+        elif algo == "td3":
+            # TODO implement td3
+            td3()
 
         self.env.terminate()
