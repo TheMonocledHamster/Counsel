@@ -10,9 +10,9 @@ from spinningup.spinup import vpg_pytorch as vpg, \
 
 class RL(object):
     def __init__(self, chain, graph_encoder="GCN", num_gnn_layer=2,
-                 max_n_delta_bw=1, hidden_sizes=(256, 256),
-                 epoch_num=1024, max_action=512, steps_per_epoch=1024,
-                 delta_bw=100, checker_mode="all", model_path=None):
+                 hidden_sizes=(256, 256),epoch_num=1024, 
+                 max_action=512, steps_per_epoch=1024,
+                 checker_mode="all", model_path=None):
         
         self.chain = chain
         
@@ -23,8 +23,7 @@ class RL(object):
         self.epoch_num = epoch_num
         self.max_action = max_action
         self.steps_per_epoch = steps_per_epoch
-        self.delta_bw = delta_bw
-        self.max_n_delta_bw = max_n_delta_bw
+
 
         self.checker_mode = checker_mode
         self.model_path = model_path

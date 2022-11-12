@@ -14,13 +14,22 @@ class Chain(object):
     """
         Representation of Computational Chain as a graph
     """
-    def __init__(self, budget:list[int]) -> None:
-        self.budget = budget
+    def __init__(self, init_conf:dict=None, budget:list[int]=None) -> None:
+        if budget is not None:
+            self.budget = budget
+        else: 
+            raise ValueError("Budget not specified")
+        
+        if init_conf is None:
+            file_path = os.path.join(os.path.dirname(__file__),
+                                     '../configs/initial_chain.json')
+            init_conf = json.load(open(file_path))
+
 
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
 
-        self._init_components()
+        self._init_components(init_conf)
         self._init_states()
 
         self.graph_repr = self.generate_graph()
@@ -33,17 +42,12 @@ class Chain(object):
         self.states = {}
 
 
-    def _init_components(self,file_path:str='')->None:
-        if file_path == '':
-            file_path = os.path.join(os.path.dirname(__file__),
-                                     '../configs/initial_chain.json')
-        chain_config = json.load(open(file_path))
-
-        for component in chain_config:
+    def _init_components(self, init_conf:dict)->None:
+        for component in init_conf:
             self.components[component] = Component(component)
-            for instance in chain_config[component]:
+            for instance in init_conf[component]:
                 self.components[component].add_instances(
-                    instance, chain_config[component][instance]
+                    instance, init_conf[component][instance]
                 )
 
     def _init_states(self)->None:
@@ -85,13 +89,13 @@ class Chain(object):
 
 
 if __name__ == '__main__':
-    chain = Chain([1,2])
-    # for comp in chain.components.values():
-    #     print(comp)
-    #     print(comp.get_instances())
-    #     print(comp.get_resources())
-    #     print(comp.prev_state, comp.next_state)
-    #     print()
+    chain = Chain(None, [1,2])
+    for comp in chain.components.values():
+        print(comp)
+        print(comp.get_instances())
+        print(comp.get_resources())
+        print(comp.prev_state, comp.next_state)
+        print()
     print(chain.get_adj_matrix())
     print()
     print(chain.get_features())
