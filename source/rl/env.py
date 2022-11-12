@@ -1,13 +1,14 @@
-from time import time
-import gym
-import gym.spaces
-from copy import deepcopy
+import math
 import os
 import sys
-import numpy as np
-import networkx as nx
+from copy import deepcopy
+from time import time
+
+import gym
+import gym.spaces
 import matplotlib.pyplot as plt
-import math
+import networkx as nx
+import numpy as np
 
 from service_chain.chain import Chain
 
@@ -43,6 +44,7 @@ class CustomEnv(gym.Env):
         self.act_list = []
         self.epoch_idx = 0
         self.cost = 0
+        self.cum_act_count = 0
 
         self.optm_target = None
         self.optm_cost = 0
@@ -76,9 +78,15 @@ class CustomEnv(gym.Env):
         act_int, act_type = int(action), 0
 
         obs, mask = self.get_obs()
+        
+        self.action_count += 1
+        self.cum_act_count += 1
+        
         if sum(mask) == 0:
             violation_flag = True
         
+
+
         if self.action_count > self.max_actions or violation_flag:
             done = True
         else:

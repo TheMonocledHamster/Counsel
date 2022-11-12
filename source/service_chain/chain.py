@@ -1,11 +1,13 @@
-import os
 import json
+import os
 from collections import OrderedDict
+
 import networkx as nx
 import numpy as np
 
 from component import Component
 from state import State
+
 
 class Chain(object):
     """

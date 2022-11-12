@@ -1,13 +1,12 @@
+import functools
 import math
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.distributions.normal import Normal
 from torch.distributions.categorical import Categorical
+from torch.distributions.normal import Normal
 from torch.nn.parameter import Parameter
-
-import functools
 
 
 def mlp(sizes, activation, dropout_flag=False, dropout=0.5, 
