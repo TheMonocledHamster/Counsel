@@ -15,49 +15,38 @@ class Chain(object):
     """
         Representation of Computational Chain as a graph
     """
-    def __init__(self, init_conf:dict=None, budget:list[int]=None):
-        if budget is not None:
-            self.budget = budget
-        else: 
-            raise ValueError("Budget not specified")
-        
-        if init_conf is None:
-            file_path = os.path.join(os.path.dirname(__file__),
-                                     '../configs/initial_chain.json')
-            init_conf = json.load(open(file_path))
-
-
+    def __init__(self, budget:list[int]=None):
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
-
-        self._init_components(init_conf)
-        self._init_states()
-
-        self.graph_repr = self.generate_graph()
-        self.adj_matrix = self.get_adj_matrix()
-        self.feature_matrix = self.get_features()
-
 
     def _clear_components(self)->None:
         self.components = {}
         self.states = {}
 
 
-    def _init_components(self, init_conf:dict)->None:
+    def init_components(self, init_conf:dict, budget:list[int]=None)->None:
         for component in init_conf:
             self.components[component] = Component(component)
             for instance in init_conf[component]:
                 self.components[component].add_instances(
                     instance, init_conf[component][instance]
                 )
-
-    def _init_states(self)->None:
         self.states[0] = State('Initial')
         for i in range(1,len(self.components)):
             self.states[i] = State(f'S{i}')
         self.states[len(self.components)] = State('Final')
         for i,comp in enumerate(self.components.values()):
             comp.specify_state(self.states[i], self.states[i+1])
+        
+        if budget is not None:
+            self.budget = budget
+        else: 
+            raise ValueError("Budget not specified")
+
+        
+        self.graph_repr = self.generate_graph()
+        self.adj_matrix = self.get_adj_matrix()
+        self.feature_matrix = self.get_features()
     
 
     def reset(self, budget:list[int])->None:
@@ -97,17 +86,25 @@ class Chain(object):
         return (math.sqrt( 
                     (total_resources[0]/self.budget[0])**2
                 +   (total_resources[1]/self.budget[1])**2 )
-                /math.sqrt(2))
+                /math.sqrt(2) - 1)
 
 
 if __name__ == '__main__':
-    chain = Chain(None, [1300,5400])
+    chain = Chain(None, [13,54])
+    
+    file_path = os.path.join(os.path.dirname(__file__),
+                                    '../configs/initial_chain.json')
+    init_conf = json.load(open(file_path))
+    chain.init_components(init_conf)
+    
     for comp in chain.components.values():
         print(comp)
         print(comp.get_instances())
         print(comp.get_resources())
         print(comp.prev_state, comp.next_state)
         print()
+    print(chain.graph_repr.edges.data())
+    print()
     print(chain.get_adj_matrix())
     print()
     print(chain.get_features())

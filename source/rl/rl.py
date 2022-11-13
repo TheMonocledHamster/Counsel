@@ -1,7 +1,7 @@
 import time
 import torch
 
-from source.rl.env import CustomEnv
+from rl.env import CustomEnv
 from rl.ac import GCNActorCritic
 from spinningup.spinup import vpg_pytorch as vpg, \
                               sac_pytorch as sac, \
