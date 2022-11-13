@@ -7,12 +7,16 @@ from spinningup.spinup import vpg_pytorch as vpg, \
                               sac_pytorch as sac, \
                               ppo_pytorch as ppo, \
                               td3_pytorch as td3
+                              
+                              
 
 class RL(object):
-    def __init__(self, chain, graph_encoder="GCN", num_gnn_layer=2,
-                 hidden_sizes=(256, 256),epoch_num=1024, 
-                 max_action=512, steps_per_epoch=1024,
-                 checker_mode="all", model_path=None):
+    def __init__(
+                self, chain, graph_encoder="GCN", num_gnn_layer=2,
+                hidden_sizes=(256, 256),epoch_num=1024, 
+                max_action=512, steps_per_epoch=1024,
+                model_path=None
+                ):
         
         self.chain = chain
         
@@ -25,7 +29,6 @@ class RL(object):
         self.steps_per_epoch = steps_per_epoch
 
 
-        self.checker_mode = checker_mode
         self.model_path = model_path
         
         log_dir_name_list = [int(time.time()), len(self.chain.components), 
@@ -35,13 +38,12 @@ class RL(object):
 
 
     def get_env(self):
-        self.env = CustomEnv(self.chain, log_dir=self.log_dir, 
-                             graph_encoder=self.graph_encoder, 
-                             max_n_delta_bw=self.max_n_delta_bw, 
-                             max_action=self.max_action, 
-                             steps_per_epoch=self.steps_per_epoch, 
-                             delta_bw=self.delta_bw, 
-                             checker_mode=self.checker_mode)
+        self.env = CustomEnv(
+                            self.chain, log_dir=self.log_dir, 
+                            graph_encoder=self.graph_encoder,  
+                            max_action=self.max_action, 
+                            steps_per_epoch=self.steps_per_epoch, 
+                            )
         return self.env
 
 
@@ -83,6 +85,10 @@ class RL(object):
         
         elif algo == "td3":
             # TODO implement td3
-            td3()
+            td3(self.get_env, actor_critic=ac, ac_kwargs=ac_kwargs,
+                seed=8, steps_per_epoch=self.steps_per_epoch,
+                epochs=self.epoch_num, max_ep_len=self.max_action,
+                logger_kwargs=logger_kwargs, device=device,
+                model_path=self.model_path)
 
         self.env.terminate()
