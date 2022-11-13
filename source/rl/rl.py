@@ -31,9 +31,10 @@ class RL(object):
 
         self.model_path = model_path
         
-        log_dir_name_list = [int(time.time()), len(self.chain.components), 
-                             self.graph_encoder, self.max_n_delta_bw, 
-                             self.steps_per_epoch, self.delta_bw]
+        log_dir_name_list = [
+                            int(time.time()), len(self.chain.components), 
+                            self.graph_encoder, self.steps_per_epoch
+                            ]
         self.log_dir = '_'.join([str(i) for i in log_dir_name_list])
 
 
@@ -57,7 +58,10 @@ class RL(object):
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         ac = GCNActorCritic
 
-        if algo == "vpg":
+        if algo == "a3c":
+            pass
+
+        elif algo == "vpg":
             vpg(self.get_env, enable_mpi=False, non_blocking=False, gamma=1,
                 actor_critic=ac, max_ep_len=self.max_action, seed=8, 
                 device=device, model_path=self.model_path, 
@@ -73,9 +77,9 @@ class RL(object):
                 ac_kwargs=ac_kwargs, epochs=self.epoch_num,
                 steps_per_epoch=self.steps_per_epoch,
                 logger_kwargs=logger_kwargs)
-        
+
         elif algo == "sac":
-            # TODO fix parameters
+            # TODO fix hyperparameters
             sac(self.get_env, enable_mpi=False, non_blocking=False, gamma=0.99,
                 actor_critic=ac, max_ep_len=self.max_action, seed=8,
                 device=device, model_path=self.model_path,
@@ -84,7 +88,7 @@ class RL(object):
                 logger_kwargs=logger_kwargs)
         
         elif algo == "td3":
-            # TODO implement td3
+            # TODO fix hyperparameters
             td3(self.get_env, actor_critic=ac, ac_kwargs=ac_kwargs,
                 seed=8, steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epoch_num, max_ep_len=self.max_action,

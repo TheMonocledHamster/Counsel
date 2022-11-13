@@ -35,7 +35,7 @@ class Component(object):
     : update the component after each timestep
     """
     def __init__(self, name:str, prev_state:State=None, 
-                next_state:State=None, TTL:int=3)->None:
+                next_state:State=None, TTL:int=3):
         self.name = name
         self.flavors = OrderedDict(json.load(open(flavors_config)))
         for flavor in self.flavors:
@@ -98,8 +98,9 @@ class Component(object):
     
     def resource_norm(self, budget:list[int])->float:
         self.get_resources()
-        return math.sqrt( (self.resources[0]/budget[0])**2
+        return (math.sqrt( (self.resources[0]/budget[0])**2
                         + (self.resources[1]/budget[1])**2 )
+                / math.sqrt(2))
 
 if __name__ == '__main__':
     c = Component('test')

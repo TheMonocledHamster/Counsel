@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from collections import OrderedDict
 
@@ -14,7 +15,7 @@ class Chain(object):
     """
         Representation of Computational Chain as a graph
     """
-    def __init__(self, init_conf:dict=None, budget:list[int]=None) -> None:
+    def __init__(self, init_conf:dict=None, budget:list[int]=None):
         if budget is not None:
             self.budget = budget
         else: 
@@ -86,10 +87,21 @@ class Chain(object):
         for idx,comp in enumerate(self.components.values()):
             np_array[idx][0] = comp.resource_norm(self.budget)
         return np.nan_to_num(stats.zscore(np_array))
+    
+    def get_budget_overrun(self)->float:
+        total_resources = [0,0]
+        for comp in self.components.values():
+            total_resources[0] += comp.get_resources()[0]
+            total_resources[1] += comp.get_resources()[1]
+        print(total_resources)
+        return (math.sqrt( 
+                    (total_resources[0]/self.budget[0])**2
+                +   (total_resources[1]/self.budget[1])**2 )
+                /math.sqrt(2))
 
 
 if __name__ == '__main__':
-    chain = Chain(None, [1,2])
+    chain = Chain(None, [1300,5400])
     for comp in chain.components.values():
         print(comp)
         print(comp.get_instances())
@@ -99,3 +111,5 @@ if __name__ == '__main__':
     print(chain.get_adj_matrix())
     print()
     print(chain.get_features())
+    print()
+    print(chain.get_budget_overrun())
