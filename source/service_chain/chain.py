@@ -89,6 +89,12 @@ class Chain(object):
                 /math.sqrt(2) - 1)
 
 
+    def get_feasible_actions(self,size:int)->np.array:
+        mask = np.ones(size)
+        # TODO Implement Feasibility Logic
+        return mask
+
+
 if __name__ == '__main__':
     chain = Chain(None, [13,54])
     

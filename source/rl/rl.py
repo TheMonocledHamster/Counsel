@@ -7,7 +7,7 @@ from spinningup.spinup import vpg_pytorch as vpg, \
                               sac_pytorch as sac, \
                               ppo_pytorch as ppo, \
                               td3_pytorch as td3
-                              
+
                               
 
 class RL(object):
@@ -40,10 +40,11 @@ class RL(object):
 
     def get_env(self):
         self.env = CustomEnv(
-                            self.chain, log_dir=self.log_dir, 
-                            graph_encoder=self.graph_encoder,  
-                            max_action=self.max_action, 
-                            steps_per_epoch=self.steps_per_epoch, 
+                            self.chain, log_dir=self.log_dir,
+                            budget=self.budget, 
+                            slo_latency=self.slo_latency,
+                            alpha_lim=self.alpha_lim,
+                            steps_per_epoch=self.steps_per_epoch,
                             )
         return self.env
 
@@ -86,7 +87,7 @@ class RL(object):
                 ac_kwargs=ac_kwargs, epochs=self.epoch_num,
                 steps_per_epoch=self.steps_per_epoch,
                 logger_kwargs=logger_kwargs)
-        
+
         elif algo == "td3":
             # TODO fix hyperparameters
             td3(self.get_env, actor_critic=ac, ac_kwargs=ac_kwargs,
