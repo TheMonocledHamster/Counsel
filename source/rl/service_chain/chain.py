@@ -7,8 +7,8 @@ import networkx as nx
 import numpy as np
 from scipy import stats
 
-from component import Component
-from state import State
+from .component import Component
+from .state import State
 
 
 class Chain(object):
@@ -19,12 +19,10 @@ class Chain(object):
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
 
-    def _clear_components(self)->None:
-        self.components = {}
-        self.states = {}
 
-
-    def init_components(self, init_conf:dict, budget:list[int]=None)->None:
+    def init_components(self, init_conf:dict, flavors_list:list, 
+                        budget:list[int])->None:
+        self.flavors_list = flavors_list
         for component in init_conf:
             self.components[component] = Component(component)
             for instance in init_conf[component]:
@@ -49,9 +47,8 @@ class Chain(object):
         self.feature_matrix = self.get_features()
     
 
-    def reset(self, budget:list[int])->None:
-        self._clear_components()
-        self.__init__(budget)
+    def reset(self)->None:
+        self.__init__()
 
 
     def generate_graph(self)->nx.DiGraph:
@@ -63,7 +60,13 @@ class Chain(object):
         return graph
     
     def get_adj_matrix(self)->np.ndarray:
-        np_array = np.zeros([len(self.states),len(self.states)],dtype=int)
+        np_array = np.zeros(
+            [
+                len(self.components),
+                len(self.components)
+            ],
+            dtype=int
+            )
         for i,ic in enumerate(self.components.keys()):
             for j,jc in enumerate(self.components.keys()):
                 if (self.components[ic].next_state == 
@@ -76,7 +79,7 @@ class Chain(object):
         for idx,comp in enumerate(self.components.values()):
             np_array[idx][0] = comp.resource_norm(self.budget)
         return np.nan_to_num(stats.zscore(np_array))
-    
+
     def get_budget_overrun(self)->float:
         tcpu,tmem = 0,0
         bcpu, bmem = self.budget[0], self.budget[1]
@@ -84,16 +87,27 @@ class Chain(object):
             res = comp.get_resources()
             tcpu += res[0]
             tmem += res[1]
-        print(tcpu,tmem)
-        return (math.sqrt( 
-                    (max(0,tcpu-bcpu)/bcpu)**2
-                +   (max(0,tmem-bmem)/bmem)**2 ))
+        return math.sqrt(
+            (max(0,tcpu-bcpu)/bcpu)**2
+            +(max(0,tmem-bmem)/bmem)**2
+        )
 
 
     def get_feasible_actions(self,size:int)->np.array:
         mask = np.ones(size)
         # TODO Implement Feasibility Logic
+        i = 0
+        for comp in self.components.values():
+            instances = comp.get_instances()
+            for flavor in self.flavors_list:
+                mask[i] = (
+                    0 if flavor not in instances else 1
+                )
+                i += 1
         return mask
+
+
+
 
 
 if __name__ == '__main__':
@@ -102,18 +116,26 @@ if __name__ == '__main__':
     file_path = os.path.join(os.path.dirname(__file__),
                                     '../../configs/initial_chain.json')
     init_conf = json.load(open(file_path))
-    chain.init_components(init_conf,[124,400])
+    flavors_file = os.path.join(os.path.dirname(__file__), 
+                                '../../configs/flavors.json')
+    flavors = dict(json.load(open(flavors_file))).keys()
+    chain.init_components(init_conf,flavors,[110,500])
     
-    for comp in chain.components.values():
-        print(comp)
-        print(comp.get_instances())
-        print(comp.get_resources())
-        print(comp.prev_state, comp.next_state)
-        print()
-    print(chain.graph_repr.edges.data())
-    print()
-    print(chain.get_adj_matrix())
-    print()
-    print(chain.get_features())
-    print()
-    print(chain.get_budget_overrun())
+    # for comp in chain.components.values():
+    #     print(comp)
+    #     print(comp.get_instances())
+    #     print(comp.get_resources())
+    #     print(comp.prev_state, comp.next_state)
+    #     print()
+    # print(chain.graph_repr.edges.data())
+    # print()
+    # print(chain.get_adj_matrix())
+    # print()
+    # print(chain.get_features())
+    # print()
+    # print(chain.get_budget_overrun())
+    # print()
+    # print(chain.get_feasible_actions(
+    #     2 * len(chain.components) * len(chain.flavors_list)
+    # ))
+    # print()

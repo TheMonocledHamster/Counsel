@@ -2,24 +2,24 @@
     "Extract":
     {
         "mini": 1,
-        "xlarge": 1
+        "large": 1
     },
 
     "Transform":
     {
-        "large": 2,
-        "xlarge": 3
+        "medium": 2,
+        "large": 3
     },
 
     "Load":
     {
-        "small": 2,
+        "micro": 2,
         "large": 1
     },
     
     "Analyze":
     {
         "medium": 3,
-        "xlarge": 2
+        "large": 2
     }
 }

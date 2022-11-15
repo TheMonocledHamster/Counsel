@@ -6,10 +6,10 @@ from copy import deepcopy
 from time import time
 
 import gym
-import gym.spaces
-import matplotlib.pyplot as plt
+from gym.spaces import Discrete, Box
 import networkx as nx
 import numpy as np
+
 from service_chain.chain import Chain
 
 
@@ -31,16 +31,16 @@ class CustomEnv(gym.Env):
 
         self.chain = chain
         self._preprocess()
-        self.max_node = len(self.chain.components)
 
 
-        obs = self.chain_repr()
+        self.action_space = Discrete(self._num_actions(), start=1)
+        print("act_space size: {}".format(self.action_space.n))
+        obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
         print("obv_space size: {}".format(self.observation_space.shape))
-        self.action_space = gym.spaces.Discrete(self._num_actions())
-        print("act_space size: {}".format(self.action_space.n))
 
         self.action_counter = 0
+        self.action_list = []
         self.epoch_counter = 0
         self.steps_per_epoch = steps_per_epoch
 
@@ -51,16 +51,18 @@ class CustomEnv(gym.Env):
     def _preprocess(self)->None:
         flavors_file = os.path.join(os.path.dirname(__file__), 
                                 '../configs/flavors.json')
-        self.flavor_num = len(dict(json.load(flavors_file)).keys())
+        flavors = dict(json.load(open(flavors_file))).keys()
+        self.flavor_num = len(flavors)
 
         conf_file = os.path.join(os.path.dirname(__file__),
                                     '../configs/initial_chain.json')
         init_conf = json.load(open(conf_file))
-        self.chain.init_components(init_conf)
+        self.chain.init_components(init_conf, flavors, self.budget)
+        self.comp_num = len(self.chain.components)
 
 
     def _num_actions(self)->list[int]:
-        return 2 * len(self.chain.components) * self.flavor_num
+        return 2 * self.comp_num * self.flavor_num
 
 
     def get_latency(self)->float:
@@ -69,7 +71,7 @@ class CustomEnv(gym.Env):
         return self.latency
 
 
-    def chain_repr(self)->np.ndarray:
+    def get_obs(self)->tuple[np.ndarray, np.ndarray]:
         E_origin = self.chain.adj_matrix
         E_hat = E_origin + np.eye(E_origin.shape[0])
 
@@ -79,51 +81,67 @@ class CustomEnv(gym.Env):
         F = self.chain.feature_matrix
 
         ob = np.concatenate((E, F), axis=1)
-        mask = np.asarray(self.chain.get_feasible_actions())
+        mask = np.asarray(
+            self.chain.get_feasible_actions(
+                self.action_space.n
+            )
+        )
         return ob, mask
 
 
-    def calculate_reward(self, alpha_t:float, phi_t:float)->float:
-        phi = self.slo_latency
-        delta_psi = phi/(phi_t + 1e-8)
-        pass
+    def calculate_reward(self, alpha:float, delta_psi:float)->float:
+        slack_penalty = delta_psi * alpha
+        budget_factor = 1 - alpha
+        load_reward = 10
+        reward = budget_factor*load_reward - slack_penalty
+        return reward
 
 
     def step(self,action)->None:
+        MIN_REW = 1e-8
         obs = None
+        mask = None
         reward = None
         done = False
-
-        bud_viol_flag,  = False
-        slo_viol_flag,  = False
+        info = {}
 
         self.action_counter += 1
 
+        action = int(action)
+        # TODO Redo this
+        act_type = 0 if action <= self.action_space.n/2 else 1
+        act_comp = (int(action/self.flavor_num)+1) if act_type == 0 \
+                   else int((action-self.action_space.n/2 -1)/self.flavor_num)
+        act_flavor = int(action % self.flavor_num)
+        self.action_list.append(act_type, act_comp, act_flavor)
+
+
+        obs, mask = self.get_obs()
+
         # check budget violation and slo violation
         if (overrun:=self.chain.get_budget_overrun()) > self.overrun_lim:
-            bud_viol_flag = True
-        if (latency:=self.get_latency()) > self.slo_latency:
-            slo_viol_flag = True
-
-        reward += self.calculate_reward(overrun,latency)
-
-        # if budget violation or slo violation
-        if bud_viol_flag or slo_viol_flag:
-            reward = 1e-6
+            reward = MIN_REW
+        elif (latency:=self.get_latency()) > self.slo_latency:
+            reward = MIN_REW
+        else:
+            slo_pres = self.slo_latency/(latency + sys.float_info.min)
+            reward = max(reward, self.calculate_reward(overrun,slo_pres))
 
         if self.action_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
             done = True
 
         self.epoch_reward += reward
-        
-        obs = self.chain_repr()
-        
-        return obs, reward, done
-    
+
+        return obs, mask, reward, done, info
+
 
     def reset(self)->None:
-        pass
+        self.chain.reset()
+        self.action_counter = 0
+        self._preprocess()
+        sys.stdout.flush()
+        return self.get_obs()
 
 
     def terminate(self)->None:
@@ -139,8 +157,8 @@ class CustomEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    chain = Chain(budget=[100, 120])
+    chain = Chain()
     env = CustomEnv(chain, log_dir="test", graph_encoder="GCN",
-                    budget=[100, 120], slo_latency=0.1, alpha=0.05,
-                    max_actions=512, steps_per_epoch=2048)
-    print(env.action_space.n)
+                    budget=[100, 120], slo_latency=0.1,
+                    overrun_lim=0.05, steps_per_epoch=2048)
+    print(env.action_space)
