@@ -6,7 +6,7 @@ from collections import Counter, OrderedDict
 from state import State
 
 flavors_config = os.path.join(os.path.dirname(__file__), 
-                                '../configs/flavors.json')
+                                '../../configs/flavors.json')
 
 
 class Component(object):

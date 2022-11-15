@@ -15,7 +15,7 @@ class Chain(object):
     """
         Representation of Computational Chain as a graph
     """
-    def __init__(self, budget:list[int]=None):
+    def __init__(self):
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
 
@@ -78,15 +78,16 @@ class Chain(object):
         return np.nan_to_num(stats.zscore(np_array))
     
     def get_budget_overrun(self)->float:
-        total_resources = [0,0]
+        tcpu,tmem = 0,0
+        bcpu, bmem = self.budget[0], self.budget[1]
         for comp in self.components.values():
-            total_resources[0] += comp.get_resources()[0]
-            total_resources[1] += comp.get_resources()[1]
-        print(total_resources)
+            res = comp.get_resources()
+            tcpu += res[0]
+            tmem += res[1]
+        print(tcpu,tmem)
         return (math.sqrt( 
-                    (total_resources[0]/self.budget[0])**2
-                +   (total_resources[1]/self.budget[1])**2 )
-                /math.sqrt(2) - 1)
+                    (max(0,tcpu-bcpu)/bcpu)**2
+                +   (max(0,tmem-bmem)/bmem)**2 ))
 
 
     def get_feasible_actions(self,size:int)->np.array:
@@ -96,12 +97,12 @@ class Chain(object):
 
 
 if __name__ == '__main__':
-    chain = Chain(None, [13,54])
+    chain = Chain()
     
     file_path = os.path.join(os.path.dirname(__file__),
-                                    '../configs/initial_chain.json')
+                                    '../../configs/initial_chain.json')
     init_conf = json.load(open(file_path))
-    chain.init_components(init_conf)
+    chain.init_components(init_conf,[124,400])
     
     for comp in chain.components.values():
         print(comp)

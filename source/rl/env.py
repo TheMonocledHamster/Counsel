@@ -10,7 +10,7 @@ import gym.spaces
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from source.service_chain.chain import Chain
+from service_chain.chain import Chain
 
 
 class CustomEnv(gym.Env):
@@ -80,18 +80,18 @@ class CustomEnv(gym.Env):
 
         ob = np.concatenate((E, F), axis=1)
         mask = np.asarray(self.chain.get_feasible_actions())
-        return ob
+        return ob, mask
 
 
     def calculate_reward(self, alpha_t:float, phi_t:float)->float:
         phi = self.slo_latency
-        delta_psi = phi/(phi_t + 1e-6)
+        delta_psi = phi/(phi_t + 1e-8)
         pass
 
 
     def step(self,action)->None:
         obs = None
-        reward = 1e-5
+        reward = None
         done = False
 
         bud_viol_flag,  = False
@@ -109,7 +109,7 @@ class CustomEnv(gym.Env):
 
         # if budget violation or slo violation
         if bud_viol_flag or slo_viol_flag:
-            reward = 1e-5
+            reward = 1e-6
 
         if self.action_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
