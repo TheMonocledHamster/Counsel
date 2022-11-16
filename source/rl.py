@@ -1,8 +1,8 @@
 import time
 import torch
 
-from rl.env import CustomEnv
-from rl.ac import GCNActorCritic
+from env import CustomEnv
+from core import GCNActorCritic
 import ppo
 
                               
