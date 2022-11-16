@@ -29,7 +29,7 @@ class Chain(object):
         for component in init_conf:
             self.components[component] = Component(component)
             for instance in init_conf[component]:
-                self.components[component].add_instances(
+                self.components[component].add_instance(
                     instance, init_conf[component][instance]
                 )
         self.states[0] = State('Initial')

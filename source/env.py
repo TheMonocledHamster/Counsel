@@ -33,14 +33,14 @@ class CustomEnv(gym.Env):
         self.chain = chain
         self._preprocess()
 
+        self.act_type = -1
+        self.act_comp = -1
+
         self.action_space = Discrete(self._num_actions())
         print("act_space size: {}".format(self.action_space.n))
         obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
         print("obv_space size: {}".format(self.observation_space.shape))
-
-        self.act_type = -1
-        self.act_comp = -1
 
         self.action_counter = 0
         self.action_list = []
