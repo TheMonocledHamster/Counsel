@@ -1,4 +1,4 @@
-from ..config import DEFAULT_DATA_DIR, FORCE_DATESTAMP, \
+from .config import DEFAULT_DATA_DIR, FORCE_DATESTAMP, \
                                DEFAULT_SHORTHAND, WAIT_BEFORE_LAUNCH
 from .logx import colorize
 from .mpi_tools import mpi_fork, msg

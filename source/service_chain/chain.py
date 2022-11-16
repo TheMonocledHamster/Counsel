@@ -75,7 +75,7 @@ class Chain(object):
 
 
     def get_features(self)->np.ndarray:
-        np_array = np.zeros([len(self.components),1])
+        np_array = np.zeros([len(self.components),len(self.components)])
         for idx,comp in enumerate(self.components.values()):
             np_array[idx][0] = comp.resource_norm(self.budget)
         return np.nan_to_num(stats.zscore(np_array))
