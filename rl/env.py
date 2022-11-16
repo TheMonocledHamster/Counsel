@@ -23,16 +23,17 @@ class CustomEnv(gym.Env):
         self.log_dir = log_dir
         self.graph_encoder = graph_encoder
 
+        if 0 in budget:
+            raise ValueError('Budget cannot be 0')
         self.budget = budget
         self.slo_latency = slo_latency
         self.overrun_lim = overrun_lim
-        self.latency = 0
-        self.flavor_num = 0
+        self.latency = 0.0
 
         self.chain = chain
         self._preprocess()
 
-        self.action_space = Discrete(self._num_actions(), start=1)
+        self.action_space = Discrete(self._num_actions())
         print("act_space size: {}".format(self.action_space.n))
         obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
@@ -51,29 +52,20 @@ class CustomEnv(gym.Env):
 
 
     def _preprocess(self)->None:
-        flavors_file = os.path.join(os.path.dirname(__file__), 
-                                '../configs/flavors.json')
-        flavors = dict(json.load(open(flavors_file))).keys()
-        self.flavor_num = len(flavors)
-
+        flavors_file = os.path.join(os.path.dirname(__file__),
+                                './configs/flavors.json')
+        self.flavors = dict(json.load(open(flavors_file))).keys()
         conf_file = os.path.join(os.path.dirname(__file__),
-                                    '../configs/initial_chain.json')
+                                    './configs/initial_chain.json')
         init_conf = json.load(open(conf_file))
-        self.chain.init_components(init_conf, flavors, self.budget)
-        self.comp_num = len(self.chain.components)
+        self.chain.init_components(init_conf, self.budget)
 
 
     def _num_actions(self)->list[int]:
-        return self.flavor_num
+        return len(self.flavors)
 
 
-    def get_obs(self, 
-                act_type:int=-1, 
-                act_comp:int=-1
-                )->tuple[
-                    np.ndarray,
-                    np.array
-                ]:
+    def get_obs(self,)->tuple[np.ndarray,np.array]:
         E_origin = self.chain.get_adj_matrix()
         E_hat = E_origin + np.eye(E_origin.shape[0])
 
@@ -85,9 +77,13 @@ class CustomEnv(gym.Env):
         ob = np.concatenate((E, F), axis=1)
 
         mask = np.ones([self.action_space.n])
-        if act_type == 0:
-            mask = np.asarray(self.chain.get_feasible_actions(mask))
-
+        if self.act_type == 0:
+            comp = self.chain.components.values()[self.act_comp]
+            instances = comp.get_instances()
+            for i in range(self.action_space.n):
+                if self.flavors[i] not in instances:
+                    mask[i] = 0
+    
         return ob, mask
 
 
@@ -104,29 +100,25 @@ class CustomEnv(gym.Env):
         done = False
         info = {}
 
+        invalid_flag = False
         self.action_counter += 1
 
-        action = int(action)
-        # TODO Redo this
-        act_type = 0 if action <= self.action_space.n/2 else 1
-        act_comp = (int(action/self.flavor_num)+1) if act_type == 0 \
-                   else int((action-self.action_space.n/2 -1)/self.flavor_num)
-        act_flavor = int(action % self.flavor_num)
-        self.action_list.append(act_type, act_comp, act_flavor)
+        act_flavor = int(action)
 
-        if act_type == 0:
-            self.chain.components[act_comp].remove_instances(act_flavor)
-        else:
-            self.chain.components[act_comp].add_instances(act_flavor)
+        comp = self.chain.components[self.act_comp]
+        invalid_flag = (comp.add_instance(act_flavor) if self.act_type
+                         else comp.del_instance(act_flavor))
 
-        # Wait Here
+        # TODO: Comms with Controller here
 
         latency = 1.34
-        act_type, act_comp = 0,0 # TODO Receive from the controller
-        obs, mask = self.get_obs(act_type,act_comp)
+        self.act_type, self.act_comp = 0,0
+        obs, mask = self.get_obs()
 
-        # check budget violation and slo violation
-        if latency > self.slo_latency:
+        # check for violation
+        if invalid_flag:
+            reward = MIN_REW
+        elif latency > self.slo_latency:
             reward = MIN_REW
         elif (overrun:=self.chain.get_budget_overrun()) > self.overrun_lim:
             reward = MIN_REW
@@ -147,7 +139,6 @@ class CustomEnv(gym.Env):
         self.chain.reset()
         self.action_counter = 0
         self._preprocess()
-        sys.stdout.flush()
         return self.get_obs()
 
 

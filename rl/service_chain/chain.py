@@ -25,9 +25,7 @@ class Chain(object):
         return str(graph.edges.data())
 
 
-    def init_components(self, init_conf:dict, flavors_list:list, 
-                        budget:list[int])->None:
-        self.flavors_list = flavors_list
+    def init_components(self, init_conf:dict,budget:list[int])->None:
         for component in init_conf:
             self.components[component] = Component(component)
             for instance in init_conf[component]:
@@ -96,27 +94,16 @@ class Chain(object):
         )
 
 
-    def get_feasible_actions(self,mask)->np.array:
-        i = 0
-        for comp in self.components.values():
-            instances = comp.get_instances()
-            for flavor in self.flavors_list:
-                mask[i] = (
-                    0 if flavor not in instances else 1
-                )
-                i += 1
-        return mask
-
 
 
 if __name__ == '__main__':
     chain = Chain()
     
     file_path = os.path.join(os.path.dirname(__file__),
-                                    '../../configs/initial_chain.json')
+                                    '../configs/initial_chain.json')
     init_conf = json.load(open(file_path))
     flavors_file = os.path.join(os.path.dirname(__file__), 
-                                '../../configs/flavors.json')
+                                '../configs/flavors.json')
     flavors = dict(json.load(open(flavors_file))).keys()
     chain.init_components(init_conf,flavors,[110,500])
     

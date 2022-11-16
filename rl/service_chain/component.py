@@ -7,7 +7,7 @@ from collections import Counter, OrderedDict
 from .state import State
 
 flavors_config = os.path.join(os.path.dirname(__file__), 
-                                '../../configs/flavors.json')
+                                '../configs/flavors.json')
 
 
 class Component(object):
@@ -67,32 +67,39 @@ class Component(object):
     def get_instances(self):
         return list(self.config.elements())
 
-    def add_instances(self, flavor:str|list[str], count:list=None)->None:
+    def add_instance(self, flavor:str|list[str], count:int|list=1)->bool:
         if isinstance(flavor, str):
-            assert flavor in self.flavors
-            self.config.update([flavor])
-            self.TTL_tracker[flavor] = time.time()
+            if not flavor in self.flavors:
+                return False
+            for _ in range(count):
+                self.config.update([flavor])
+                self.TTL_tracker[flavor] = time.time()
         elif isinstance(flavor, list):
             for f,c in zip(flavor,count):
-                assert f in self.flavors
+                if not f in self.flavors:
+                    return False
                 for _ in range(c):
                     self.config.update([f])
                     self.TTL_tracker[f] = time.time()
+        return True
     
-    def remove_instances(self, flavor:str|list[str], count:list=None)->bool:
+    def del_instance(self, flavor:str|list[str], count:int|list[int]=1)->bool:
         if isinstance(flavor, str):
-            assert flavor in self.flavors
+            if not flavor in self.flavors:
+                return False
             if self.check_TTL(flavor):
                 return False
-            elif self.config[flavor] > 1:        
-                self.config.subtract([flavor])
-            elif self.config[flavor] == 1:
-                self.config.subtract([flavor])
-            else:
-                return False
+            for _ in range(count):
+                if self.config[flavor] > 1:        
+                    self.config.subtract([flavor])
+                elif self.config[flavor] == 1:
+                    self.config.subtract([flavor])
+                else:
+                    raise RuntimeError("Instance count is non-positive")
         elif isinstance(flavor, list):
             for f,c in zip(flavor,count):
-                assert f in self.flavors
+                if not f in self.flavors:
+                    return False
                 if self.check_TTL(f):
                     continue
                 for _ in range(c):
@@ -100,8 +107,8 @@ class Component(object):
                         self.config.subtract([f])
                     elif self.config[f] == 1:
                         self.config.pop(f)
-                else:
-                    return False
+                    else:
+                        raise RuntimeError("Instance count is non-positive")
         return True
 
     def resource_norm(self, budget:list[int])->float:
@@ -115,9 +122,10 @@ class Component(object):
 
 if __name__ == '__main__':
     c = Component('test')
-    c.add_instances('small', 3)
-    c.add_instances('medium', 2)
-    c.add_instances('large', 1)
+    c.add_instance('small', 3)
+    c.add_instance('medium', 2)
+    c.add_instance('large', 1)
+    c.del_instance('small', 2)
     print(c.get_instances())
     print(c.resource_norm([100,120]))
     print(c.resource_norm([120,100]))
