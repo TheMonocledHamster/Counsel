@@ -44,7 +44,6 @@ class Chain(object):
         
         self.graph_repr = self.generate_graph()
         self.adj_matrix = self.get_adj_matrix()
-        self.feature_matrix = self.get_features()
     
 
     def reset(self)->None:
@@ -75,7 +74,7 @@ class Chain(object):
         return np_array
 
     def get_features(self)->np.ndarray:
-        np_array = np.zeros([len(self.components),len(self.components)])
+        np_array = np.zeros([len(self.components),1])
         for idx,comp in enumerate(self.components.values()):
             np_array[idx][0] = comp.resource_norm(self.budget)
         return np.nan_to_num(stats.zscore(np_array))
@@ -93,9 +92,7 @@ class Chain(object):
         )
 
 
-    def get_feasible_actions(self,size:int)->np.array:
-        mask = np.ones(size)
-        # TODO Implement Feasibility Logic
+    def get_feasible_actions(self,mask)->np.array:
         i = 0
         for comp in self.components.values():
             instances = comp.get_instances()
@@ -105,8 +102,6 @@ class Chain(object):
                 )
                 i += 1
         return mask
-
-
 
 
 
@@ -134,8 +129,4 @@ if __name__ == '__main__':
     # print(chain.get_features())
     # print()
     # print(chain.get_budget_overrun())
-    # print()
-    # print(chain.get_feasible_actions(
-    #     2 * len(chain.components) * len(chain.flavors_list)
-    # ))
     # print()

@@ -32,12 +32,14 @@ class CustomEnv(gym.Env):
         self.chain = chain
         self._preprocess()
 
-
         self.action_space = Discrete(self._num_actions(), start=1)
         print("act_space size: {}".format(self.action_space.n))
         obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
         print("obv_space size: {}".format(self.observation_space.shape))
+
+        self.act_type = -1
+        self.act_comp = -1
 
         self.action_counter = 0
         self.action_list = []
@@ -62,38 +64,35 @@ class CustomEnv(gym.Env):
 
 
     def _num_actions(self)->list[int]:
-        return 2 * self.comp_num * self.flavor_num
+        return self.flavor_num
 
 
-    def get_latency(self)->float:
-        # Fetch latency from monitoring system
-        self.latency = 0
-        return self.latency
-
-
-    def get_obs(self)->tuple[np.ndarray, np.ndarray]:
+    def get_obs(self, 
+                act_type:int, 
+                act_comp:int
+                )->tuple(
+                    np.ndarray,
+                    np.array
+                    ):
         E_origin = self.chain.adj_matrix
         E_hat = E_origin + np.eye(E_origin.shape[0])
 
         D = np.diag(np.sum(E_hat, axis=1))
         D_spectral = np.sqrt(np.linalg.inv(D))
         E = np.matmul(np.matmul(D_spectral, E_hat), D_spectral)
-        F = self.chain.feature_matrix
+        F = self.chain.get_features()
 
         ob = np.concatenate((E, F), axis=1)
-        mask = np.asarray(
-            self.chain.get_feasible_actions(
-                self.action_space.n
-            )
-        )
+
+        mask = np.ones([len(self.flavors_list)])
+        if act_type == 0:
+            mask = np.asarray(self.chain.get_feasible_actions(mask))
+
         return ob, mask
 
 
-    def calculate_reward(self, alpha:float, delta_psi:float)->float:
-        slack_penalty = delta_psi * alpha
-        budget_factor = 1 - alpha
-        load_reward = 10
-        reward = budget_factor*load_reward - slack_penalty
+    def calculate_reward(self)->float:
+        reward = 1e-5
         return reward
 
 
@@ -115,8 +114,15 @@ class CustomEnv(gym.Env):
         act_flavor = int(action % self.flavor_num)
         self.action_list.append(act_type, act_comp, act_flavor)
 
+        if act_type == 0:
+            self.chain.components[act_comp].remove_instances(act_flavor)
+        else:
+            self.chain.components[act_comp].add_instances(act_flavor)
 
-        obs, mask = self.get_obs()
+        # Wait Here
+
+        act_type, act_comp = 0,0 # TODO Receive from the controller
+        obs, mask = self.get_obs(act_type,act_comp)
 
         # check budget violation and slo violation
         if (overrun:=self.chain.get_budget_overrun()) > self.overrun_lim:
@@ -161,4 +167,12 @@ if __name__ == "__main__":
     env = CustomEnv(chain, log_dir="test", graph_encoder="GCN",
                     budget=[100, 120], slo_latency=0.1,
                     overrun_lim=0.05, steps_per_epoch=2048)
-    print(env.action_space)
+
+    print(env.get_obs()[0], env.get_obs()[1],sep='\n')
+    # print()
+    # print(chain.get_budget_overrun())
+    # print()
+    # print(chain.get_feasible_actions(
+    #     2 * len(chain.components) * len(chain.flavors_list)
+    # ))
+    # print()

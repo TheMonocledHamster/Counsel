@@ -1,6 +1,7 @@
 import json
 import math
 import os
+import time
 from collections import Counter, OrderedDict
 
 from .state import State
@@ -15,7 +16,7 @@ class Component(object):
     * name (str)
     : name of the component
     * TTL (int)
-    : time to live of the instance
+    : time to live in minutes
     
     Returns
     * Component object
@@ -27,79 +28,93 @@ class Component(object):
     : remove n instances of flavor, default n=1
     * get_instances()->list[str] 
     : get list of instances in the component
-    * get_resources()->list[int] 
-    : get total resources of the component
+    * resource_norm(budget:list[int])->float
+    : calculate the resource norm of the component
     * specify_state(prev_state:State, next_state:State)->None 
     : specify position of the component in the pipeline
-    * step()->None 
-    : update the component after each timestep
+    * check_TTL(flavor:str)->bool
+    : check if the flavor is within the TTL
     """
     def __init__(self, name:str, prev_state:State=None, 
-                next_state:State=None, TTL:int=3):
+                next_state:State=None, TTL:int=15):
         self.name = name
         self.flavors = OrderedDict(json.load(open(flavors_config)))
-        for flavor in self.flavors:
-            self._impl_TTL(flavor)
         self.config = Counter()
         
         self.TTL = TTL
+        self.TTL_tracker = {}
         self.prev_state = prev_state
         self.next_state = next_state
 
 
     def __str__(self):
         return self.name
-    
-    def _impl_TTL(self, flavor:str)->None:
-        self.flavors[flavor].insert(0,0)
 
-    def _update_TTL(self)->None:
-        for flavor in self.flavors:
-            if self.flavors[flavor][0] > 0:
-                self.flavors[flavor][0] -= 1
+    def check_TTL(self,flavor)->bool:
+        if flavor in self.TTL_tracker and \
+            time.time() - self.TTL_tracker[flavor] \
+            < self.TTL * 60:
+            return True
+        elif flavor in self.TTL_tracker and \
+            time.time() - self.TTL_tracker[flavor] \
+            > self.TTL * 60:
+            self.TTL_tracker.pop(flavor)
+            return False
+        else:
+            return False
     
     def specify_state(self, prev_state:State, next_state:State)->None:
         self.prev_state = prev_state
         self.next_state = next_state
-    
-    def step(self)->None:
-        self._update_TTL()
 
     def get_instances(self):
         return list(self.config.elements())
 
-    def add_instances(self, flavor:str, count:int=1)->None:
-        assert isinstance(flavor, str)
-        assert flavor in self.flavors
-        for i in range(count):
+    def add_instances(self, flavor:str|list[str], count:list=None)->None:
+        if isinstance(flavor, str):
+            assert flavor in self.flavors
             self.config.update([flavor])
-        self.flavors[flavor][0] = self.TTL
+            self.TTL_tracker[flavor] = time.time()
+        elif isinstance(flavor, list):
+            for f,c in zip(flavor,count):
+                assert f in self.flavors
+                for _ in range(c):
+                    self.config.update([f])
+                    self.TTL_tracker[f] = time.time()
     
-    def remove_instances(self, flavor:str, count:int=1)->bool:
-        assert isinstance(flavor, str)
-        assert flavor in self.flavors
-        if self.flavors[flavor][0] > 0:
-            return False
-        for _ in range(count):
-            if self.config[flavor] > 0:
+    def remove_instances(self, flavor:str|list[str], count:list=None)->bool:
+        if isinstance(flavor, str):
+            assert flavor in self.flavors
+            if self.check_TTL(flavor):
+                return False
+            elif self.config[flavor] > 1:        
                 self.config.subtract([flavor])
-            elif self.config[flavor] == 0:
-                self.config.pop(flavor)
+            elif self.config[flavor] == 1:
+                self.config.subtract([flavor])
             else:
                 return False
+        elif isinstance(flavor, list):
+            for f,c in zip(flavor,count):
+                assert f in self.flavors
+                if self.check_TTL(f):
+                    continue
+                for _ in range(c):
+                    if self.config[f] > 1:
+                        self.config.subtract([f])
+                    elif self.config[f] == 1:
+                        self.config.pop(f)
+                else:
+                    return False
         return True
 
-    def get_resources(self)->list[int]:
-        self.resources = [0,0]
-        for flavor, count in self.config.items():
-            self.resources[0] += count * self.flavors[flavor][1]
-            self.resources[1] += count * self.flavors[flavor][2]
-        return self.resources
-    
     def resource_norm(self, budget:list[int])->float:
-        self.get_resources()
-        return (math.sqrt( (self.resources[0]/budget[0])**2
-                        + (self.resources[1]/budget[1])**2 ))
+        self.cpu, self.mem = 0,0
+        for flavor, count in self.config.items():
+            self.cpu += count * self.flavors[flavor][1]
+            self.mem += count * self.flavors[flavor][2]
+        return (math.sqrt( (self.cpu/budget[0])**2
+                        + (self.mem/budget[1])**2 ))
+
 
 if __name__ == '__main__':
     c = Component('test')
@@ -107,6 +122,5 @@ if __name__ == '__main__':
     c.add_instances('medium', 2)
     c.add_instances('large', 1)
     print(c.get_instances())
-    print(c.get_resources())
     print(c.resource_norm([100,120]))
     print(c.resource_norm([120,100]))
