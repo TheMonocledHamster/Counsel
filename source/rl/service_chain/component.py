@@ -51,15 +51,12 @@ class Component(object):
         return self.name
 
     def check_TTL(self,flavor)->bool:
-        if flavor in self.TTL_tracker and \
-            time.time() - self.TTL_tracker[flavor] \
-            < self.TTL * 60:
-            return True
-        elif flavor in self.TTL_tracker and \
-            time.time() - self.TTL_tracker[flavor] \
-            > self.TTL * 60:
-            self.TTL_tracker.pop(flavor)
-            return False
+        if flavor in self.TTL_tracker:
+            if time.time() - self.TTL_tracker[flavor] < self.TTL * 60:
+                return True
+            else:
+                self.TTL_tracker.pop(flavor)
+                return False
         else:
             return False
     
@@ -110,8 +107,8 @@ class Component(object):
     def resource_norm(self, budget:list[int])->float:
         self.cpu, self.mem = 0,0
         for flavor, count in self.config.items():
-            self.cpu += count * self.flavors[flavor][1]
-            self.mem += count * self.flavors[flavor][2]
+            self.cpu += count * self.flavors[flavor][0]
+            self.mem += count * self.flavors[flavor][1]
         return (math.sqrt( (self.cpu/budget[0])**2
                         + (self.mem/budget[1])**2 ))
 

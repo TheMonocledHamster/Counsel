@@ -13,11 +13,16 @@ from .state import State
 
 class Chain(object):
     """
-        Representation of Computational Chain as a graph
+        Representation of Computation Chain as a graph
     """
     def __init__(self):
         self.components = OrderedDict() # Set of components
         self.states = OrderedDict() # Set of states
+    
+
+    def __str__(self)->str:
+        graph = self.generate_graph()
+        return str(graph.edges.data())
 
 
     def init_components(self, init_conf:dict, flavors_list:list, 
@@ -41,10 +46,6 @@ class Chain(object):
         else: 
             raise ValueError("Budget not specified")
 
-        
-        self.graph_repr = self.generate_graph()
-        self.adj_matrix = self.get_adj_matrix()
-    
 
     def reset(self)->None:
         self.__init__()
@@ -55,9 +56,10 @@ class Chain(object):
         graph.add_nodes_from(self.states.keys())
         for comp in self.components.values():
             graph.add_edge(comp.prev_state.name, comp.next_state.name,
-                           capacity=comp.get_resources())
+                           weight=round(comp.resource_norm(self.budget),2))
         return graph
-    
+
+
     def get_adj_matrix(self)->np.ndarray:
         np_array = np.zeros(
             [
@@ -73,11 +75,13 @@ class Chain(object):
                     np_array[i][j] = 1
         return np_array
 
+
     def get_features(self)->np.ndarray:
         np_array = np.zeros([len(self.components),1])
         for idx,comp in enumerate(self.components.values()):
             np_array[idx][0] = comp.resource_norm(self.budget)
         return np.nan_to_num(stats.zscore(np_array))
+
 
     def get_budget_overrun(self)->float:
         tcpu,tmem = 0,0

@@ -68,13 +68,13 @@ class CustomEnv(gym.Env):
 
 
     def get_obs(self, 
-                act_type:int, 
-                act_comp:int
-                )->tuple(
+                act_type:int=-1, 
+                act_comp:int=-1
+                )->tuple[
                     np.ndarray,
                     np.array
-                    ):
-        E_origin = self.chain.adj_matrix
+                ]:
+        E_origin = self.chain.get_adj_matrix()
         E_hat = E_origin + np.eye(E_origin.shape[0])
 
         D = np.diag(np.sum(E_hat, axis=1))
@@ -84,7 +84,7 @@ class CustomEnv(gym.Env):
 
         ob = np.concatenate((E, F), axis=1)
 
-        mask = np.ones([len(self.flavors_list)])
+        mask = np.ones([self.action_space.n])
         if act_type == 0:
             mask = np.asarray(self.chain.get_feasible_actions(mask))
 
@@ -121,13 +121,14 @@ class CustomEnv(gym.Env):
 
         # Wait Here
 
+        latency = 1.34
         act_type, act_comp = 0,0 # TODO Receive from the controller
         obs, mask = self.get_obs(act_type,act_comp)
 
         # check budget violation and slo violation
-        if (overrun:=self.chain.get_budget_overrun()) > self.overrun_lim:
+        if latency > self.slo_latency:
             reward = MIN_REW
-        elif (latency:=self.get_latency()) > self.slo_latency:
+        elif (overrun:=self.chain.get_budget_overrun()) > self.overrun_lim:
             reward = MIN_REW
         else:
             slo_pres = self.slo_latency/(latency + sys.float_info.min)
@@ -165,10 +166,11 @@ class CustomEnv(gym.Env):
 if __name__ == "__main__":
     chain = Chain()
     env = CustomEnv(chain, log_dir="test", graph_encoder="GCN",
-                    budget=[100, 120], slo_latency=0.1,
+                    budget=[125, 550], slo_latency=0.1,
                     overrun_lim=0.05, steps_per_epoch=2048)
 
     print(env.get_obs()[0], env.get_obs()[1],sep='\n')
+    print(chain)
     # print()
     # print(chain.get_budget_overrun())
     # print()
