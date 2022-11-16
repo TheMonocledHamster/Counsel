@@ -1,8 +1,0 @@
-[submodule "spinningup"]
-	path = source/spinningup
-	url = https://github.com/TheMonocledHamster/spinningup.git
-	branch = spinup-only
-[submodule "source/approximator"]
-	path = source/approximator
-	url = git@github.com:TheMonocledHamster/primal-dual-approximator.git
-	branch = approximator
