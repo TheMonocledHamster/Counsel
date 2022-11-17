@@ -70,25 +70,25 @@ class Component(object):
     def add_instance(self, flavor:str|list[str], count:int|list=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
-                return False
+                return True
             for _ in range(count):
                 self.config.update([flavor])
                 self.TTL_tracker[flavor] = time.time()
         elif isinstance(flavor, list):
             for f,c in zip(flavor,count):
                 if not f in self.flavors:
-                    return False
+                    return True
                 for _ in range(c):
                     self.config.update([f])
                     self.TTL_tracker[f] = time.time()
-        return True
+        return False
     
     def del_instance(self, flavor:str|list[str], count:int|list[int]=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
-                return False
+                return True
             if self.check_TTL(flavor):
-                return False
+                return True
             for _ in range(count):
                 if self.config[flavor] > 1:        
                     self.config.subtract([flavor])
@@ -99,9 +99,9 @@ class Component(object):
         elif isinstance(flavor, list):
             for f,c in zip(flavor,count):
                 if not f in self.flavors:
-                    return False
+                    return True
                 if self.check_TTL(f):
-                    continue
+                    return True
                 for _ in range(c):
                     if self.config[f] > 1:
                         self.config.subtract([f])
@@ -109,7 +109,7 @@ class Component(object):
                         self.config.pop(f)
                     else:
                         raise RuntimeError("Instance count is non-positive")
-        return True
+        return False
 
     def resource_norm(self, budget:list[int])->float:
         self.cpu, self.mem = 0,0
