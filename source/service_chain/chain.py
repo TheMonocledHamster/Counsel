@@ -77,7 +77,9 @@ class Chain(object):
     def get_features(self)->np.ndarray:
         np_array = np.zeros([len(self.components),len(self.components)])
         for idx,comp in enumerate(self.components.values()):
-            np_array[idx][0] = comp.resource_norm(self.budget)
+            comp.compute_resources()
+            np_array[idx][1] = comp.cpu/self.budget[0]
+            np_array[idx][2] = comp.mem/self.budget[1]
         return np.nan_to_num(stats.zscore(np_array))
 
 
@@ -85,9 +87,9 @@ class Chain(object):
         tcpu,tmem = 0,0
         bcpu, bmem = self.budget[0], self.budget[1]
         for comp in self.components.values():
-            res = comp.get_resources()
-            tcpu += res[0]
-            tmem += res[1]
+            comp.compute_resources()
+            tcpu += comp.cpu
+            tmem += comp.mem
         return math.sqrt(
             (max(0,tcpu-bcpu)/bcpu)**2
             +(max(0,tmem-bmem)/bmem)**2

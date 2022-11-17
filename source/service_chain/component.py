@@ -28,12 +28,14 @@ class Component(object):
     : remove n instances of flavor, default n=1
     * get_instances()->list[str] 
     : get list of instances in the component
-    * resource_norm(budget:list[int])->float
-    : calculate the resource norm of the component
     * specify_state(prev_state:State, next_state:State)->None 
     : specify position of the component in the pipeline
     * check_TTL(flavor:str)->bool
     : check if the flavor is within the TTL
+    * compute_resources()->None
+    : compute each resource dimension of the component
+    * update_util(arrival_rate:int, service_rate:int)->None
+    : update the queueing theory utilization of the component
     """
     def __init__(self, name:str, prev_state:State=None, 
                 next_state:State=None, TTL:int=15):
@@ -45,6 +47,7 @@ class Component(object):
         self.TTL_tracker = {}
         self.prev_state = prev_state
         self.next_state = next_state
+        self.util = None
 
 
     def __str__(self):
@@ -111,13 +114,17 @@ class Component(object):
                         raise RuntimeError("Instance count is non-positive")
         return False
 
-    def resource_norm(self, budget:list[int])->float:
+    def compute_resources(self)->None:
         self.cpu, self.mem = 0,0
         for flavor, count in self.config.items():
             self.cpu += count * self.flavors[flavor][0]
             self.mem += count * self.flavors[flavor][1]
-        return (math.sqrt( (self.cpu/budget[0])**2
-                        + (self.mem/budget[1])**2 ))
+    
+    def update_util(self, arrival_rate:int, service_rate:int)->None:
+        # Queueing theory utilization
+        self.compute_resources()
+        self.util = arrival_rate / (service_rate * self.cpu)
+
 
 
 if __name__ == '__main__':
@@ -127,5 +134,3 @@ if __name__ == '__main__':
     c.add_instance('large', 1)
     c.del_instance('small', 2)
     print(c.get_instances())
-    print(c.resource_norm([100,120]))
-    print(c.resource_norm([120,100]))
