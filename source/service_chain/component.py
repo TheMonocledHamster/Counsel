@@ -121,7 +121,13 @@ class Component(object):
             self.mem += count * self.flavors[flavor][1]
     
     def update_util(self, arrival_rate:int, service_rate:int)->None:
-        # Queueing theory utilization
+        """
+            Queueing Theory Utilization 
+            G/G/m
+            lambda_t = arrival rate at time t
+            mu_t = service rate at time t
+            rho = lambda_t / mu_t * m
+        """
         self.compute_resources()
         self.util = arrival_rate / (service_rate * self.cpu)
 

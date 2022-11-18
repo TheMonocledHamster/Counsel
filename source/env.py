@@ -1,13 +1,9 @@
 import json
-import math
 import os
 import sys
-from copy import deepcopy
-from time import time
 
 import gym
-from gym.spaces import Discrete, Box
-import networkx as nx
+from gym.spaces import Discrete
 import numpy as np
 
 from service_chain.chain import Chain
@@ -37,7 +33,7 @@ class CustomEnv(gym.Env):
 
         self.action_space = Discrete(self._num_actions())
         print("act_space size: {}".format(self.action_space.n))
-        obs,_ = self.get_obs(0)
+        obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
         print("obv_space size: {}".format(self.observation_space.shape))
 
@@ -47,17 +43,21 @@ class CustomEnv(gym.Env):
         self.steps_per_epoch = steps_per_epoch
 
         self.epoch_reward = 0
+        self.BASE_RWD = 1e-4
         self.best_epoch = 0
-
+    
 
     def _preprocess(self)->None:
         flavors_file = os.path.join(os.path.dirname(__file__),
                                 './configs/flavors.json')
-        self.flavors = list(dict(json.load(open(flavors_file))).keys())
+        self.flavors = list(dict(json.load(open(flavors_file))).items())
         conf_file = os.path.join(os.path.dirname(__file__),
                                     './configs/initial_chain.json')
         init_conf = json.load(open(conf_file))
         self.chain.init_components(init_conf, self.budget)
+        self.components = list(self.chain.components.values())
+        for c in self.components:
+            c.update_util(1,1)
 
 
     def _num_actions(self)->list[int]:
@@ -70,12 +70,11 @@ class CustomEnv(gym.Env):
         
         E_origin = self.chain.get_adj_matrix()
         E_hat = E_origin + np.eye(E_origin.shape[0])
-
         D = np.diag(np.sum(E_hat, axis=1))
         D_spectral = np.sqrt(np.linalg.inv(D))
         E = np.matmul(np.matmul(D_spectral, E_hat), D_spectral)
         F = self.chain.get_features()
-        F[self.act_comp][0] = comp.util
+        F[:,0] = [comp.util for comp in self.components]
         F[self.act_comp][3] = 1
 
         ob = np.concatenate((E, F), axis=1)
@@ -84,85 +83,85 @@ class CustomEnv(gym.Env):
         if comp is not None:
             instances = comp.get_instances()
             for i in range(self.action_space.n):
-                if self.flavors[i] not in instances:
+                if self.flavors[i][0] not in instances:
                     mask[i] = 0
 
         return ob, mask
 
 
     def calculate_reward(self)->float:
-        u_k = 0
-        u_i = 0
-        m = 0
-        for i,comp in enumerate(self.chain.components.values()):
-            if i != self.act_comp:
-                u_k += comp.util
-            else:
-                u_i = comp.util
-        for i in range(m):
-            if i != self.act_comp:
-                u_k += self.chain.get_adj_matrix()[self.act_comp][i]
-        return 0.0
+        comp = self.components[self.act_comp]
+        upsilon_i = comp.util
+        upsilon_k = sum([ocomp.util for ocomp in self.components if ocomp != comp])
+        
+        alpha_cpu = (self.budget[0] - comp.cpu)
+        alpha_mem = (self.budget[1] - comp.mem)
+        cpu_, mem_ = self.flavors[self.act_type][1][:]
+
+        # Utility functions
+        sgn = lambda x: (x>0)-(x<0)
+        dim_rwd = lambda a,x: sgn(a-x)*abs(a-x)/a
+
+        # Reward
+        rwd_cpu = dim_rwd(alpha_cpu, cpu_)
+        rwd_mem = dim_rwd(alpha_mem, mem_)
+        reward = upsilon_k + upsilon_i*(rwd_cpu + rwd_mem)/2
+        reward = max(self.BASE_RWD, reward)
+
+        return reward
 
 
     def step(self,action)->None:
-        MIN_REW = 1e-8
         obs = None
         mask = None
         reward = None
         done = False
         info = {}
 
-        invalid_flag = False
         self.action_counter += 1
 
         act_flavor = int(action)
 
-        comp = self.chain.components[self.act_comp]
+        comp = self.components[self.act_comp]
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
-                         else comp.del_instance(act_flavor))
+                        else comp.del_instance(act_flavor))
 
         # Begin TODO: Comms with Controller here
 
         latency = 1.34
         self.act_type = 0
         self.act_comp = 0
-        arrival_rate = np.full(len(self.chain.components), 100)
-        service_rate = np.full(len(self.chain.components), 95)
+        arrival_rate = np.full(len(self.components), 100)
+        service_rate = np.full(len(self.components), 95)
 
         # End TODO
         
-        for c, lambda_t, mu_t in zip(list(self.chain.components.values()),
-                                        arrival_rate,service_rate):
-            # Queueing theory Utilization
-            # lambda_t = arrival rate at time t
-            # mu_t = service rate at time t
-            # rho = lambda_t / mu_t * n 
+        for c, lambda_t, mu_t in \
+            zip((self.components),arrival_rate,service_rate):
+            """
+                Queueing Theory Utilization 
+                G/G/m
+                lambda_t = arrival rate at time t
+                mu_t = service rate at time t
+                rho = lambda_t / mu_t * m
+            """
             c.update_util(lambda_t, mu_t)
 
         # TTL check needed for removal
-        if self.act_type == 0:
-            obs, mask = self.get_obs(comp)
-        else:
-            obs, mask = self.get_obs()
+        self.get_obs(comp)
 
-        # check for violations
-        if latency > self.slo_latency:
-            slo_flag = True
-        if self.chain.get_budget_overrun() > self.overrun_lim:
-            budget_flag = True
+        reward = self.BASE_RWD
         
-        if slo_flag and not budget_flag:
-            reward = MIN_REW
-        elif budget_flag and not slo_flag:
-            reward = MIN_REW
-        elif slo_flag and budget_flag:
-            reward = MIN_REW**2
-        elif invalid_flag:
-            reward = 100 * MIN_REW
-        else:
-            # slo_pres = self.slo_latency/(latency + sys.float_info.min)
-            reward = max(reward, self.calculate_reward(self.act_comp))
+        # check for violations
+        if (lat_viol:=latency/self.slo_latency) > 1:
+            reward **= lat_viol
+        overrun = self.chain.get_budget_overrun()
+        if (b_viol:=overrun/(self.overrun_lim+sys.float_info.min)) > 1:
+            reward **= (b_viol+1)/2
+        if invalid_flag:
+            reward *= 0.5
+        if reward == self.BASE_RWD:
+            reward = self.calculate_reward()
 
         if self.action_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
@@ -193,12 +192,11 @@ class CustomEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    chain = Chain()
-    env = CustomEnv(chain, log_dir="test", graph_encoder="GCN",
+    env = CustomEnv(log_dir="test", graph_encoder="GCN",
                     budget=[125, 550], slo_latency=0.1,
                     overrun_lim=0.05, steps_per_epoch=2048)
-
-    print(env.get_obs()[0], env.get_obs()[1],sep='\n\n')
+    comp = env.components[0]
+    print(env.get_obs(comp)[0], env.get_obs(comp)[1],sep='\n\n')
     # print()
     # print(chain.get_budget_overrun())
     # print()
