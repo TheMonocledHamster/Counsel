@@ -106,7 +106,7 @@ class CustomEnv(gym.Env):
         rwd_cpu = dim_rwd(alpha_cpu, cpu_)
         rwd_mem = dim_rwd(alpha_mem, mem_)
         reward = upsilon_k + upsilon_i*(rwd_cpu + rwd_mem)/2
-        reward = max(self.BASE_RWD, reward)
+        reward = max(0.01, reward)
 
         return reward
 
@@ -121,6 +121,7 @@ class CustomEnv(gym.Env):
         self.action_counter += 1
 
         act_flavor = int(action)
+        self.action_list.append((self.act_type, self.act_comp, act_flavor))
 
         comp = self.components[self.act_comp]
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
@@ -161,7 +162,7 @@ class CustomEnv(gym.Env):
         if invalid_flag:
             reward *= 0.5
         if reward == self.BASE_RWD:
-            reward = self.calculate_reward()
+            reward = self.calculate_reward() # Guaraneteed reward >= 0.01
 
         if self.action_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
