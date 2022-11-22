@@ -1,8 +1,8 @@
 import json
-import math
 import os
 import time
 from collections import Counter, OrderedDict
+from typing import List
 
 from .state import State
 
@@ -26,7 +26,7 @@ class Component(object):
     : add n instances of flavor, default n=1
     * remove_instances(flavor:str, count:int)->bool
     : remove n instances of flavor, default n=1
-    * get_instances()->list[str] 
+    * get_instances()->List[str] 
     : get list of instances in the component
     * specify_state(prev_state:State, next_state:State)->None 
     : specify position of the component in the pipeline
@@ -70,7 +70,7 @@ class Component(object):
     def get_instances(self):
         return list(self.config.elements())
 
-    def add_instance(self, flavor:str|list[str], count:int|list=1)->bool:
+    def add_instance(self, flavor:str|List[str], count:int|list=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
                 return True
@@ -86,7 +86,7 @@ class Component(object):
                     self.TTL_tracker[f] = time.time()
         return False
     
-    def del_instance(self, flavor:str|list[str], count:int|list[int]=1)->bool:
+    def del_instance(self, flavor:str|List[str], count:int|List[int]=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
                 return True

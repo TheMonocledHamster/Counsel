@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from typing import List, Tuple
 
 import gym
 from gym.spaces import Discrete
@@ -13,7 +14,7 @@ from service_chain.component import Component
 class CustomEnv(gym.Env):
     def __init__(
                 self, log_dir:str, graph_encoder:str,
-                budget:list[int], slo_latency:float, 
+                budget:List[int], slo_latency:float, 
                 overrun_lim:float, steps_per_epoch:int=8192
                 ):
 
@@ -38,7 +39,6 @@ class CustomEnv(gym.Env):
         print("obv_space size: {}".format(self.observation_space.shape))
 
         self.action_counter = 0
-        self.action_list = []
         self.epoch_counter = 0
         self.steps_per_epoch = steps_per_epoch
 
@@ -60,13 +60,13 @@ class CustomEnv(gym.Env):
             c.update_util(1,1)
 
 
-    def _num_actions(self)->list[int]:
+    def _num_actions(self)->List[int]:
         return len(self.flavors)
 
 
     def get_obs(self,
                 comp:Component=None
-                )->tuple[np.ndarray,np.array]:
+                )->Tuple[np.ndarray,np.array]:
         
         E_origin = self.chain.get_adj_matrix()
         E_hat = E_origin + np.eye(E_origin.shape[0])
@@ -100,7 +100,7 @@ class CustomEnv(gym.Env):
 
         # Utility functions
         sgn = lambda x: (x>0)-(x<0)
-        dim_rwd = lambda a,x: sgn(a-x)*abs(a-x)/a
+        dim_rwd = lambda a,x: sgn(a-x)*abs(1-x/a)
 
         # Reward
         rwd_cpu = dim_rwd(alpha_cpu, cpu_)
@@ -121,7 +121,6 @@ class CustomEnv(gym.Env):
         self.action_counter += 1
 
         act_flavor = int(action)
-        self.action_list.append((self.act_type, self.act_comp, act_flavor))
 
         comp = self.components[self.act_comp]
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
@@ -187,9 +186,6 @@ class CustomEnv(gym.Env):
     def save_if_best(self)->None:
         pass
 
-
-    def save_trajectory(self)->None:
-        pass
 
 
 if __name__ == "__main__":
