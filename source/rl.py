@@ -1,11 +1,10 @@
 import time
 import torch
 
-from env import CustomEnv
+from .env import CustomEnv
 from core import GCNActorCritic
 import ppo
 
-                              
 
 class RL(object):
     def __init__(

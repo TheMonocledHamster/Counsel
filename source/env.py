@@ -9,6 +9,7 @@ import numpy as np
 
 from service_chain.chain import Chain
 from service_chain.component import Component
+from tester import call_load_server
 
 
 class CustomEnv(gym.Env):
@@ -55,9 +56,9 @@ class CustomEnv(gym.Env):
                                     './configs/initial_chain.json')
         init_conf = json.load(open(conf_file))
         self.chain.init_components(init_conf, self.budget)
-        self.components = list(self.chain.components.values())
+        self.components:List[Component] = list(self.chain.components.values())
         for c in self.components:
-            c.update_util(1,1)
+            c.update_util(1)
 
 
     def _num_actions(self)->List[int]:
@@ -128,24 +129,18 @@ class CustomEnv(gym.Env):
 
         # Begin TODO: Comms with Controller here
 
-        latency = 1.34
-        self.act_type = 0
-        self.act_comp = 0
-        arrival_rate = np.full(len(self.components), 100)
-        service_rate = np.full(len(self.components), 95)
+        metrics = call_load_server(act_flavor)
 
+        arrival_rate = metrics[0]
+        utilization = metrics[1]
+        latency = metrics[2]
+        self.act_type = metrics[3]
+        self.act_comp = metrics[4]
         # End TODO
-        
-        for c, lambda_t, mu_t in \
-            zip((self.components),arrival_rate,service_rate):
-            """
-                Queueing Theory Utilization 
-                G/G/m
-                lambda_t = arrival rate at time t
-                mu_t = service rate at time t
-                rho = lambda_t / mu_t * m
-            """
-            c.update_util(lambda_t, mu_t)
+
+        for comp in self.components:
+            comp.update_util(utilization)
+            comp.update_arr(arrival_rate)
 
         # TTL check needed for removal
         self.get_obs(comp)
@@ -153,15 +148,15 @@ class CustomEnv(gym.Env):
         reward = self.BASE_RWD
         
         # check for violations
-        if (lat_viol:=latency/self.slo_latency) > 1:
+        if (lat_viol:=(latency/self.slo_latency)) > 1:
             reward **= lat_viol
         overrun = self.chain.get_budget_overrun()
-        if (b_viol:=overrun/(self.overrun_lim+sys.float_info.min)) > 1:
+        if (b_viol:=(overrun/(self.overrun_lim+sys.float_info.min))) > 1:
             reward **= (b_viol+1)/2
         if invalid_flag:
             reward *= 0.5
         if reward == self.BASE_RWD:
-            reward = self.calculate_reward() # Guaraneteed reward >= 0.01
+            reward = self.calculate_reward() # Guaranteed reward >= 0.01
 
         if self.action_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1

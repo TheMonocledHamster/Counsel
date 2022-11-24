@@ -1,25 +1,14 @@
 {
-    "Extract":
+    "ReverseProxy":
     {
-        "mini": 1,
+        "medium": 1
+    },
+    "WebServer":
+    {
+        "xlarge": 1
+    },
+    "Database":
+    {
         "large": 1
-    },
-
-    "Transform":
-    {
-        "medium": 2,
-        "large": 3
-    },
-
-    "Load":
-    {
-        "micro": 2,
-        "large": 1
-    },
-    
-    "Analyze":
-    {
-        "medium": 3,
-        "large": 2
     }
 }

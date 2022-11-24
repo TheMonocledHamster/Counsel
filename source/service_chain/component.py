@@ -2,7 +2,7 @@ import json
 import os
 import time
 from collections import Counter, OrderedDict
-from typing import List
+from typing import List, Union
 
 from .state import State
 
@@ -48,6 +48,7 @@ class Component(object):
         self.prev_state = prev_state
         self.next_state = next_state
         self.util = None
+        self.arr = None
 
 
     def __str__(self):
@@ -70,7 +71,8 @@ class Component(object):
     def get_instances(self):
         return list(self.config.elements())
 
-    def add_instance(self, flavor:str|List[str], count:int|list=1)->bool:
+    def add_instance(self, flavor:Union[str,List[str]], 
+                     count:Union[int,List[int]]=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
                 return True
@@ -86,7 +88,8 @@ class Component(object):
                     self.TTL_tracker[f] = time.time()
         return False
     
-    def del_instance(self, flavor:str|List[str], count:int|List[int]=1)->bool:
+    def del_instance(self, flavor:Union[str,List[str]],
+                     count:Union[int,List[int]]=1)->bool:
         if isinstance(flavor, str):
             if not flavor in self.flavors:
                 return True
@@ -119,17 +122,12 @@ class Component(object):
         for flavor, count in self.config.items():
             self.cpu += count * self.flavors[flavor][0]
             self.mem += count * self.flavors[flavor][1]
+
+    def update_util(self, util:float)->None:
+        self.util = util
     
-    def update_util(self, arrival_rate:int, service_rate:int)->None:
-        """
-            Queueing Theory Utilization 
-            G/G/m
-            lambda_t = arrival rate at time t
-            mu_t = service rate at time t
-            rho = lambda_t / mu_t * m
-        """
-        self.compute_resources()
-        self.util = arrival_rate / (service_rate * self.cpu)
+    def update_arr(self, arr:int)->None:
+        self.arr = arr
 
 
 

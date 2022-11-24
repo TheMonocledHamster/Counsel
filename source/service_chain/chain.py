@@ -22,11 +22,11 @@ class Chain(object):
     
 
     def __str__(self)->str:
-        graph = self.generate_graph()
+        graph = self.compute_graph()
         return str(graph.edges.data())
 
 
-    def init_components(self, init_conf:dict,budget:List[int])->None:
+    def init_components(self, init_conf:dict, budget:List[int])->None:
         for component in init_conf:
             self.components[component] = Component(component)
             for instance in init_conf[component]:
@@ -38,6 +38,7 @@ class Chain(object):
             self.states[i] = State(f'S{i}')
         self.states[len(self.components)] = State('Final')
         for i,comp in enumerate(self.components.values()):
+            comp:Component
             comp.specify_state(self.states[i], self.states[i+1])
         
         if budget is not None:
@@ -50,12 +51,13 @@ class Chain(object):
         self.__init__()
 
 
-    def generate_graph(self)->nx.DiGraph:
+    def compute_graph(self)->nx.DiGraph:
         graph = nx.DiGraph()
         graph.add_nodes_from(self.states.keys())
         for comp in self.components.values():
+            comp:Component
             graph.add_edge(comp.prev_state.name, comp.next_state.name,
-                           weight=round(comp.resource_norm(self.budget),2))
+                           weight=(comp.cpu,comp.mem))
         return graph
 
 
@@ -76,8 +78,9 @@ class Chain(object):
 
 
     def get_features(self)->np.ndarray:
-        np_array = np.zeros([len(self.components),len(self.components)])
+        np_array = np.zeros([len(self.components),4])
         for idx,comp in enumerate(self.components.values()):
+            comp:Component
             comp.compute_resources()
             np_array[idx][1] = comp.cpu/self.budget[0]
             np_array[idx][2] = comp.mem/self.budget[1]
@@ -88,6 +91,7 @@ class Chain(object):
         tcpu,tmem = 0,0
         bcpu, bmem = self.budget[0], self.budget[1]
         for comp in self.components.values():
+            comp:Component
             comp.compute_resources()
             tcpu += comp.cpu
             tmem += comp.mem
@@ -95,8 +99,6 @@ class Chain(object):
             (max(0,tcpu-bcpu)/bcpu)**2
             +(max(0,tmem-bmem)/bmem)**2
         )
-
-
 
 
 if __name__ == '__main__':
@@ -109,18 +111,5 @@ if __name__ == '__main__':
                                 '../configs/flavors.json')
     flavors = dict(json.load(open(flavors_file))).keys()
     chain.init_components(init_conf,flavors,[110,500])
-    
-    # for comp in chain.components.values():
-    #     print(comp)
-    #     print(comp.get_instances())
-    #     print(comp.get_resources())
-    #     print(comp.prev_state, comp.next_state)
-    #     print()
-    # print(chain.graph_repr.edges.data())
-    # print()
-    # print(chain.get_adj_matrix())
-    # print()
-    # print(chain.get_features())
-    # print()
-    # print(chain.get_budget_overrun())
-    # print()
+
+    print(chain.compute_graph())
