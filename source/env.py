@@ -16,12 +16,14 @@ class CustomEnv(gym.Env):
     def __init__(
                 self, log_dir:str, graph_encoder:str,
                 budget:List[int], slo_latency:float, 
-                overrun_lim:float, steps_per_epoch:int=8192
+                overrun_lim:float, steps_per_epoch:int=8192,
+                mode = 'synthetic', **kwargs
                 ):
 
         self.log_dir = log_dir
         self.graph_encoder = graph_encoder
-
+        if mode not in ['synthetic', 'live']:
+            raise ValueError('Invalid mode')
         if 0 in budget:
             raise ValueError('Budget cannot be 0')
         self.budget = budget
@@ -127,7 +129,7 @@ class CustomEnv(gym.Env):
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
                         else comp.del_instance(act_flavor))
 
-        # Begin TODO: Comms with Controller here
+        # Begin: Comms here
 
         metrics = call_load_server(act_flavor, (comp.cpu, comp.mem))
 
