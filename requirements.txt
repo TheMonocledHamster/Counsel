@@ -1,7 +1,7 @@
 torch
 gym
-fastapi
 networkx
 scipy
 numpy
+fastapi
 "uvicorn[standard]"

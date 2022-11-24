@@ -129,7 +129,7 @@ class CustomEnv(gym.Env):
 
         # Begin TODO: Comms with Controller here
 
-        metrics = call_load_server(act_flavor)
+        metrics = call_load_server(act_flavor, (comp.cpu, comp.mem))
 
         arrival_rate = metrics[0]
         utilization = metrics[1]
