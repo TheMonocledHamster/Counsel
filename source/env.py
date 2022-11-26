@@ -9,19 +9,17 @@ import numpy as np
 
 from service_chain.chain import Chain
 from service_chain.component import Component
-from tester import call_load_server
+from source.synth import call_load_server
 
 
 class CustomEnv(gym.Env):
     def __init__(
-                self, log_dir:str, graph_encoder:str,
+                self, log_dir:str, steps_per_epoch:int,
                 budget:List[int], slo_latency:float, 
-                overrun_lim:float, steps_per_epoch:int=8192,
-                mode = 'synthetic', **kwargs
+                overrun_lim:float, mode:str, **kwargs
                 ):
 
         self.log_dir = log_dir
-        self.graph_encoder = graph_encoder
         if mode not in ['synthetic', 'live']:
             raise ValueError('Invalid mode')
         if 0 in budget:
@@ -131,7 +129,9 @@ class CustomEnv(gym.Env):
 
         # Begin: Comms here
 
-        metrics = call_load_server(act_flavor, (comp.cpu, comp.mem))
+        metrics = call_load_server(act_flavor,
+                                   [comp.cpu for comp in self.components],
+                                   [comp.mem for comp in self.components])
 
         arrival_rate = metrics[0]
         utilization = metrics[1]

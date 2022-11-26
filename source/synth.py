@@ -8,7 +8,7 @@ def set_slo(slo:int):
     """
     Set the SLO for the server.
     """
-    url = "http://localhost:8000/"
+    url = "http://localhost:8000/slo"
     data = json.dumps({"slo": slo}).encode("utf-8")
     request.Request(url, data=data, method="PUT")
 
@@ -24,7 +24,7 @@ def call_load_server(choice:int,
     Call the server with the action and get the next metrics.
     """
     while True:
-        url = "http://localhost:8000/"
+        url = "http://localhost:8000/load"
         data = json.dumps({"choice": choice}).encode("utf-8")
         req = request.Request(url, data=data, method="POST")
         with request.urlopen(req) as f:

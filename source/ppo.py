@@ -8,6 +8,7 @@ import core
 from utils.logx import EpochLogger
 from utils.mpi_pytorch import setup_pytorch_for_mpi, sync_params, mpi_avg_grads
 from utils.mpi_tools import mpi_fork, mpi_avg, proc_id, mpi_statistics_scalar, num_procs
+from env import CustomEnv
 
 
 class PPOBuffer:
@@ -206,7 +207,7 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
     np.random.seed(seed)
 
     # Instantiate environment
-    env = env_fn()
+    env:CustomEnv = env_fn()
     obs_dim = env.observation_space.shape
     act_dim = env.action_space.shape
 
@@ -293,14 +294,14 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
 
     # Prepare for interaction with environment
     start_time = time.time()
-    o, ep_ret, ep_len = env.reset(), 0, 0
+    o, m, ep_ret, ep_len = env.reset(), 0, 0
 
     # Main loop: collect experience in env and update/log each epoch
     for epoch in range(epochs):
         for t in range(local_steps_per_epoch):
-            a, v, logp = ac.step(torch.as_tensor(o, dtype=torch.float32))
+            a, v, logp = ac.step(torch.as_tensor(o, m))
 
-            next_o, r, d, _ = env.step(a)
+            next_o, m, r, d, _ = env.step(a)
             ep_ret += r
             ep_len += 1
 
@@ -327,7 +328,7 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
                 if terminal:
                     # only save EpRet / EpLen if trajectory finished
                     logger.store(EpRet=ep_ret, EpLen=ep_len)
-                o, ep_ret, ep_len = env.reset(), 0, 0
+                o, m, ep_ret, ep_len = env.reset(), 0, 0
 
 
         # Save model
@@ -373,7 +374,7 @@ if __name__ == '__main__':
     from utils.run_utils import setup_logger_kwargs
     logger_kwargs = setup_logger_kwargs(args.exp_name, args.seed)
 
-    ppo(lambda : gym.make(args.env), actor_critic=core.GCNActorCritic,
+    ppo(lambda: gym.make(args.env), actor_critic=core.GCNActorCritic,
         ac_kwargs=dict(hidden_sizes=[args.hid]*args.l), gamma=args.gamma, 
         seed=args.seed, steps_per_epoch=args.steps, epochs=args.epochs,
         logger_kwargs=logger_kwargs)
