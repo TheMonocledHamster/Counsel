@@ -1,40 +1,30 @@
-import json
-from typing import List
-import urllib.request as request
+import requests
 import numpy as np
 import time
+from typing import List, Tuple
 
-def set_slo(slo:int):
+
+def set_slo(slo:int, freq:int):
     """
     Set the SLO for the server.
     """
     url = "http://localhost:8000/slo"
-    data = json.dumps({"slo": slo}).encode("utf-8")
-    request.Request(url, data=data, method="PUT")
+    query = {"slo": slo, "freq": freq}
+    requests.put(url, json=query)
 
-def call_load_server(choice:int, 
-                     cpu:List[int], 
-                     mem:List[int]
-                     )->List[
-                             List[int],
-                             np.array[float],
-                             float
-                            ]:
+def call_load_server(cpu:List[int], mem:List[int])->Tuple:
     """
     Call the server with the action and get the next metrics.
     """
     while True:
         url = "http://localhost:8000/load"
-        data = json.dumps({"choice": choice}).encode("utf-8")
-        req = request.Request(url, data=data, method="POST")
-        with request.urlopen(req) as f:
-            metrics = json.loads(f.read().decode("utf-8"))
-        arrival_rate = np.array(metrics["arrival_rate"])
-        latency = metrics["latency"]
+        metrics = requests.get(url).json()
+
+        arrival_rate = metrics["arrival_rate"]
 
         ucpu = np.array(metrics["resources"][0])
         umem = np.array(metrics["resources"][1])
-        util = np.sqrt(np.sum((ucpu/cpu)**2) + np.sum((umem/mem)**2))
+        util = np.sqrt(np.mean(((ucpu/cpu)**2)+((umem/mem)**2)))
 
         act_type = 0
         act_comp = -1
@@ -48,7 +38,18 @@ def call_load_server(choice:int,
                 flag = True
                 act_comp = i
 
+        latency = arrival_rate * 1.5 / util
+
         if flag:
-            return [arrival_rate, util, latency, act_type, act_comp]
+            return arrival_rate, util, latency, act_type, act_comp
         
-        time.sleep(5)
+        time.sleep(2)
+
+def test():
+    slo = np.random.randint(30, 5000)
+    freq = 1000 / max(np.random.randint(int(0.02*slo), int(0.05*slo)),1e-2)
+    set_slo(slo, freq)
+    call_load_server([5, 5, 5], [8, 8, 8])
+
+if __name__ == "__main__":
+    test()

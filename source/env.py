@@ -22,6 +22,7 @@ class CustomEnv(gym.Env):
         self.log_dir = log_dir
         if mode not in ['synthetic', 'live']:
             raise ValueError('Invalid mode')
+        self.mode = mode
         if 0 in budget:
             raise ValueError('Budget cannot be 0')
         self.budget = budget
@@ -91,10 +92,10 @@ class CustomEnv(gym.Env):
 
 
     def calculate_reward(self)->float:
-        comp = self.components[self.act_comp]
+        comp:Component = self.components[self.act_comp]
         upsilon_i = comp.util
-        upsilon_k = sum([ocomp.util for ocomp in self.components if ocomp != comp])
-        
+        upsilon_k = sum([ocomp.util for ocomp in self.components]) - upsilon_i
+
         alpha_cpu = (self.budget[0] - comp.cpu)
         alpha_mem = (self.budget[1] - comp.mem)
         cpu_, mem_ = self.flavors[self.act_type][1][:]
@@ -127,11 +128,12 @@ class CustomEnv(gym.Env):
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
                         else comp.del_instance(act_flavor))
 
-        # Begin: Comms here
-
-        metrics = call_load_server(act_flavor,
-                                   [comp.cpu for comp in self.components],
-                                   [comp.mem for comp in self.components])
+        # Begin: Sync call here
+        if self.mode == 'synthetic':
+            metrics = call_load_server([comp.cpu for comp in self.components],
+                                       [comp.mem for comp in self.components])
+        else:
+            metrics = None #TODO: Call Orchestrator
 
         arrival_rate = metrics[0]
         utilization = metrics[1]
