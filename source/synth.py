@@ -1,4 +1,5 @@
 import requests
+import math
 import numpy as np
 import time
 from typing import List, Tuple
@@ -22,9 +23,8 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
 
         arrival_rate = metrics["arrival_rate"]
 
-        ucpu = np.array(metrics["resources"][0])
-        umem = np.array(metrics["resources"][1])
-        util = np.sqrt(np.mean(((ucpu/cpu)**2)+((umem/mem)**2)))
+        ucpu = np.array(metrics["util"][0])
+        umem = np.array(metrics["util"][1])
 
         act_type = 0
         act_comp = -1
@@ -38,18 +38,20 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_comp = i
 
-        latency = arrival_rate * 1.5 / util
-
         if flag:
+            latency = None
+            util = zip([ucpu[i]/cpu[i] for i in range(len(cpu))],
+                       [umem[i]/mem[i] for i in range(len(mem))])
             return arrival_rate, util, latency, act_type, act_comp
         
         time.sleep(2)
 
 def test():
-    slo = np.random.randint(30, 5000)
-    freq = 1000 / max(np.random.randint(int(0.02*slo), int(0.05*slo)),1e-2)
+    slo = int(np.exp(np.random.randint(300, 840)/100))
+    freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
+    print("SLO: {}, Freq: {}".format(slo, freq))
     set_slo(slo, freq)
-    call_load_server([5, 5, 5], [8, 8, 8])
+    print(call_load_server([4, 4, 4], [6, 6, 16]))
 
 if __name__ == "__main__":
     test()

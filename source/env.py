@@ -59,7 +59,7 @@ class CustomEnv(gym.Env):
         self.chain.init_components(init_conf, self.budget)
         self.components:List[Component] = list(self.chain.components.values())
         for c in self.components:
-            c.update_util(1)
+            c.update_util(1,1)
 
 
     def _num_actions(self)->List[int]:
@@ -142,8 +142,8 @@ class CustomEnv(gym.Env):
         self.act_comp = metrics[4]
         # End TODO
 
-        for comp in self.components:
-            comp.update_util(utilization)
+        for comp,util in zip(self.components,utilization):
+            comp.update_util(util)
             comp.update_arr(arrival_rate)
 
         # TTL check needed for removal
