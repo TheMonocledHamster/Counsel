@@ -143,8 +143,7 @@ class CustomEnv(gym.Env):
         # End TODO
 
         for comp,util in zip(self.components,utilization):
-            comp.update_util(util)
-            comp.update_arr(arrival_rate)
+            comp.update_util(util[0],util[1])
 
         # TTL check needed for removal
         self.get_obs(comp)

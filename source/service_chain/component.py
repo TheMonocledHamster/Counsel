@@ -1,4 +1,5 @@
 import json
+from scipy.linalg import norm as scipy_norm
 import os
 import time
 from collections import Counter, OrderedDict
@@ -37,18 +38,14 @@ class Component(object):
     * update_util(arrival_rate:int, service_rate:int)->None
     : update the queueing theory utilization of the component
     """
-    def __init__(self, name:str, prev_state:State=None, 
-                next_state:State=None, TTL:int=15):
+    def __init__(self, name:str, TTL:int=15):
         self.name = name
         self.flavors = OrderedDict(json.load(open(flavors_config)))
         self.config = Counter()
         
         self.TTL = TTL
         self.TTL_tracker = {}
-        self.prev_state = prev_state
-        self.next_state = next_state
         self.util = None
-        self.arr = None
 
 
     def __str__(self):
@@ -123,11 +120,8 @@ class Component(object):
             self.cpu += count * self.flavors[flavor][0]
             self.mem += count * self.flavors[flavor][1]
 
-    def update_util(self, util:float)->None:
-        self.util = util
-    
-    def update_arr(self, arr:int)->None:
-        self.arr = arr
+    def update_util(self, ucpu:float, umem:float)->None:
+        self.util = scipy_norm(ucpu, umem)/2
 
 
 

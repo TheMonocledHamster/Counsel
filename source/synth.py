@@ -34,24 +34,21 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_type = 1
                 act_comp = i
-            elif ucpu[i] < cpu[i]/2 and umem[i] < mem[i]/2 and act_comp == -1:
+            elif ucpu[i] < cpu[i]/2 and umem[i] < mem[i]/2 and not flag:
                 flag = True
                 act_comp = i
 
         if flag:
-            latency = None
+            latency = None #TODO
             util = zip([ucpu[i]/cpu[i] for i in range(len(cpu))],
                        [umem[i]/mem[i] for i in range(len(mem))])
             return arrival_rate, util, latency, act_type, act_comp
         
         time.sleep(2)
 
-def test():
-    slo = int(np.exp(np.random.randint(300, 840)/100))
+if __name__ == "__main__":
+    slo = int(np.exp(np.random.randint(300,840)/100))
     freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
     print("SLO: {}, Freq: {}".format(slo, freq))
     set_slo(slo, freq)
-    print(call_load_server([4, 4, 4], [6, 6, 16]))
-
-if __name__ == "__main__":
-    test()
+    print(call_load_server([5, 8, 5], [6, 8, 12]))
