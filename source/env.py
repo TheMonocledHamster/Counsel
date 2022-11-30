@@ -9,14 +9,14 @@ import numpy as np
 
 from service_chain.chain import Chain
 from service_chain.component import Component
-from source.synth import call_load_server
+from synthetic import call_load_server
 
 
 class CustomEnv(gym.Env):
     def __init__(
                 self, log_dir:str, steps_per_epoch:int,
                 budget:List[int], slo_latency:float, 
-                overrun_lim:float, mode:str, **kwargs
+                overrun_lim:float, mode:str='synthetic', **kwargs
                 ):
 
         self.log_dir = log_dir
@@ -32,9 +32,9 @@ class CustomEnv(gym.Env):
         self.act_comp = 0
 
         self.chain = Chain()
-        self._preprocess()
+        self.__preprocess()
 
-        self.action_space = Discrete(self._num_actions())
+        self.action_space = Discrete(self.__num_actions())
         print("act_space size: {}".format(self.action_space.n))
         obs,_ = self.get_obs()
         self.observation_space = gym.Space(shape=list(obs.shape))
@@ -49,7 +49,7 @@ class CustomEnv(gym.Env):
         self.best_epoch = 0
     
 
-    def _preprocess(self)->None:
+    def __preprocess(self)->None:
         flavors_file = os.path.join(os.path.dirname(__file__),
                                 './configs/flavors.json')
         self.flavors = list(dict(json.load(open(flavors_file))).items())
@@ -62,12 +62,13 @@ class CustomEnv(gym.Env):
             c.update_util(1,1)
 
 
-    def _num_actions(self)->List[int]:
+    def __num_actions(self)->List[int]:
         return len(self.flavors)
 
 
     def get_obs(self,
-                comp:Component=None
+                comp:Component=None,
+                arrival_rate:float=None
                 )->Tuple[np.ndarray,np.array]:
         
         E_origin = self.chain.get_adj_matrix()
@@ -76,8 +77,9 @@ class CustomEnv(gym.Env):
         D_spectral = np.sqrt(np.linalg.inv(D))
         E = np.matmul(np.matmul(D_spectral, E_hat), D_spectral)
         F = self.chain.get_features()
-        F[:,0] = [comp.util for comp in self.components]
-        F[self.act_comp][3] = 1
+        F[:,2] = [comp.util for comp in self.components]
+        F[:,3] = arrival_rate
+        F[self.act_comp][4] = 1
 
         ob = np.concatenate((E, F), axis=1)
 
@@ -110,6 +112,7 @@ class CustomEnv(gym.Env):
         reward = upsilon_k + upsilon_i*(rwd_cpu + rwd_mem)/2
         reward = max(0.01, reward)
 
+        # Max Possible Reward = comp_count
         return reward
 
 
@@ -127,8 +130,10 @@ class CustomEnv(gym.Env):
         comp = self.components[self.act_comp]
         invalid_flag = (comp.add_instance(act_flavor) if self.act_type
                         else comp.del_instance(act_flavor))
+        if act_flavor == 0 or self.mode == 'synthetic':
+            invalid_flag = False
 
-        # Begin: Sync call here
+        # Sync call
         if self.mode == 'synthetic':
             metrics = call_load_server([comp.cpu for comp in self.components],
                                        [comp.mem for comp in self.components])
@@ -136,20 +141,20 @@ class CustomEnv(gym.Env):
             metrics = None #TODO: Call Orchestrator
 
         arrival_rate = metrics[0]
-        utilization = metrics[1]
-        latency = metrics[2]
-        self.act_type = metrics[3]
-        self.act_comp = metrics[4]
-        # End TODO
+        cutils = metrics[1]
+        mutils = metrics[2]
+        latency = metrics[3]
+        self.act_type = metrics[4]
+        act_comp = metrics[5]
+        if act_comp != -1:
+            self.act_comp = act_comp
 
-        for comp,util in zip(self.components,utilization):
-            comp.update_util(util[0],util[1])
-
-        # TTL check needed for removal
-        self.get_obs(comp)
+        for comp,cutil,mutil in zip(self.components,cutils,mutils):
+            comp.update_util(cutil, mutil)
+        obs, mask = self.get_obs(comp, arrival_rate)
 
         reward = self.BASE_RWD
-        
+
         # check for violations
         if (lat_viol:=(latency/self.slo_latency)) > 1:
             reward **= lat_viol
@@ -173,7 +178,7 @@ class CustomEnv(gym.Env):
     def reset(self)->None:
         self.chain.reset()
         self.action_counter = 0
-        self._preprocess()
+        self.__preprocess()
         return self.get_obs()
 
 
@@ -183,19 +188,3 @@ class CustomEnv(gym.Env):
 
     def save_if_best(self)->None:
         pass
-
-
-
-if __name__ == "__main__":
-    env = CustomEnv(log_dir="test", graph_encoder="GCN",
-                    budget=[125, 550], slo_latency=0.1,
-                    overrun_lim=0.05, steps_per_epoch=2048)
-    comp = env.components[0]
-    print(env.get_obs(comp)[0], env.get_obs(comp)[1],sep='\n\n')
-    # print()
-    # print(chain.get_budget_overrun())
-    # print()
-    # print(chain.get_feasible_actions(
-    #     2 * len(chain.components) * len(chain.flavors_list)
-    # ))
-    # print()

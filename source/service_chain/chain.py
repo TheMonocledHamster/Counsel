@@ -78,12 +78,12 @@ class Chain(object):
 
 
     def get_features(self)->np.ndarray:
-        np_array = np.zeros([len(self.components),4])
+        np_array = np.zeros([len(self.components),5])
         for idx,comp in enumerate(self.components.values()):
             comp:Component
             comp.compute_resources()
-            np_array[idx][1] = comp.cpu/self.budget[0]
-            np_array[idx][2] = comp.mem/self.budget[1]
+            np_array[idx][0] = comp.cpu/self.budget[0]
+            np_array[idx][1] = comp.mem/self.budget[1]
         return np.nan_to_num(stats.zscore(np_array))
 
 
