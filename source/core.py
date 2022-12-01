@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.categorical import Categorical
-from torch.distributions.normal import Normal
 from torch.nn.parameter import Parameter
 
 
@@ -66,8 +65,8 @@ class SimpleGCN(nn.Module):
 
     # adj_adjust is D^(-0.5)*(adj+I)*D^(0.5)
     def forward(self, h_0, adj_adjust):
-        support = torch.matmul(h_0, self.weight)
-        output = torch.matmul(adj_adjust, support)
+        support = torch.matmul(h_0.float(), self.weight)
+        output = torch.matmul(adj_adjust.float(), support)
         return output
 
 """

@@ -1,15 +1,15 @@
 import requests
 import numpy as np
 from typing import List, Tuple
-from service_chain.component import Component
+from .service_chain.component import Component
 
 
-def set_slo(slo:int, freq:int)->None:
+def set_slo(slo:int, freq:int, knob:float)->None:
     """
     Set the SLO for the load.
     """
     url = "http://localhost:8000/slo"
-    query = {"slo": slo, "freq": freq}
+    query = {"slo": slo, "freq": freq, "knob": knob}
     requests.put(url, json=query)
 
 def set_base(comps:List[Component])->None:
@@ -34,7 +34,7 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         arrival_rate = metrics["arrival_rate"]
         lcpu = np.array(metrics["load"][0])
         lmem = np.array(metrics["load"][1])
-        latency = metrics["latency"]
+        slo = metrics["slo"]
         done = metrics["done"]
 
         act_type = 0
@@ -49,18 +49,26 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_comp = i
 
-        loadc = [max(lcpu[i]/cpu[i],1) for i in range(len(cpu))]
-        loadm = [max(lmem[i]/mem[i],1) for i in range(len(mem))]
+        loadc = [lcpu[i]/cpu[i] for i in range(len(cpu))]
+        loadm = [lmem[i]/mem[i] for i in range(len(mem))]
+
+        rho = np.sqrt((np.mean(loadc)**2 + np.mean(loadm)**2)/2)
+
+        if rho < 1:
+            latency = 0.98 * slo
+        else:
+            latency = 0.98 * slo * rho
+
         return arrival_rate, loadc, loadm, latency, act_type, act_comp, done
 
-
 if __name__ == "__main__":
-    slo = int(np.exp(np.random.randint(300,840)/100))
-    freq = int(1e8 / np.random.randint(int(slo*0.8), int(slo*1.2)))
+    slo = int(np.exp(np.random.randint(240,840)/100))
+    freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
+    knob = 0.01 # For over, under and near provisioning
     print("SLO: {}, Freq: {}".format(slo, freq))
     from env import CustomEnv
     env = CustomEnv("_", 2048, [30,60], slo, 0.2, 'synthetic')
-    set_slo(slo, freq)
+    set_slo(slo, freq, knob)
     set_base(env.components)
     for i in range(15):
         print(env.step(1)[2])

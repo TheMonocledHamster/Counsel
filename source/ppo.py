@@ -294,12 +294,13 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
 
     # Prepare for interaction with environment
     start_time = time.time()
-    o, m, ep_ret, ep_len = env.reset(), 0, 0
+    obs, ep_ret, ep_len = env.reset(), 0, 0
+    o, m = obs
 
     # Main loop: collect experience in env and update/log each epoch
     for epoch in range(epochs):
         for t in range(local_steps_per_epoch):
-            a, v, logp = ac.step(torch.as_tensor(o, m))
+            a, v, logp = ac.step(torch.as_tensor(o),torch.as_tensor(m))
 
             next_o, m, r, d, _ = env.step(a)
             ep_ret += r

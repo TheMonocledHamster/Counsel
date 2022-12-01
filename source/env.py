@@ -7,16 +7,16 @@ import gym
 from gym.spaces import Discrete
 import numpy as np
 
-from service_chain.chain import Chain
-from service_chain.component import Component
-from synthetic import call_load_server
+from .service_chain.chain import Chain
+from .service_chain.component import Component
+from .synthetic import call_load_server, set_base
 
 
 class CustomEnv(gym.Env):
     def __init__(
                 self, log_dir:str, steps_per_epoch:int,
-                budget:List[int], slo_latency:float, 
-                overrun_lim:float, mode:str='synthetic', **kwargs
+                budget:List[int], slo_latency:float,
+                overrun_lim:float, mode:str='synthetic'
                 ):
 
         self.log_dir = log_dir
@@ -33,6 +33,7 @@ class CustomEnv(gym.Env):
 
         self.chain = Chain()
         self.__preprocess()
+        set_base(self.components)
 
         self.action_space = Discrete(self.__num_actions())
         print("act_space size: {}".format(self.action_space.n))
@@ -40,10 +41,11 @@ class CustomEnv(gym.Env):
         self.observation_space = gym.Space(shape=list(obs.shape))
         print("obv_space size: {}".format(self.observation_space.shape))
 
+        self.step_counter = 0
         self.action_counter = 0
         self.epoch_counter = 0
         self.steps_per_epoch = steps_per_epoch
-        self.episode_done = False
+        self.episode_reward = 1e-8
         self.BASE_RWD = 1e-4
         
 
@@ -93,8 +95,9 @@ class CustomEnv(gym.Env):
 
     def calculate_reward(self)->float:
         comp:Component = self.components[self.act_comp]
-        upsilon_i = comp.util
-        upsilon_k = sum([ocomp.util for ocomp in self.components]) - upsilon_i
+        upsilon_i = min(comp.util, 1)
+        upsilon_k = min(sum([ocomp.util for ocomp in self.components]),
+                        len(self.components)) - upsilon_i
 
         alpha_cpu = (self.budget[0] - comp.cpu)
         alpha_mem = (self.budget[1] - comp.mem)
@@ -115,13 +118,9 @@ class CustomEnv(gym.Env):
 
 
     def step(self,action)->None:
-        obs = None
-        mask = None
-        reward = None
-        done = False
         info = {}
 
-        self.action_counter += 1
+        self.step_counter += 1
 
         act_flavor = int(action)
 
@@ -130,6 +129,8 @@ class CustomEnv(gym.Env):
                         else comp.del_instance(act_flavor))
         if act_flavor == 0 or self.mode == 'synthetic':
             invalid_flag = False
+        
+        self.action_counter += min(act_flavor, 1)
 
         # Sync call
         if self.mode == 'synthetic':
@@ -146,7 +147,7 @@ class CustomEnv(gym.Env):
         act_comp = metrics[5]
         if act_comp != -1:
             self.act_comp = act_comp
-        self.episode_done = metrics[6]
+        done = metrics[6]
 
         for comp,cutil,mutil in zip(self.components,cutils,mutils):
             comp.update_util(cutil, mutil)
@@ -164,26 +165,33 @@ class CustomEnv(gym.Env):
             reward *= 0.5
         if reward == self.BASE_RWD:
             reward = self.calculate_reward() # Guaranteed reward >= 0.01
+        
+        self.episode_reward += reward
 
-        if self.action_counter % self.steps_per_epoch == 0:
+        if self.step_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
             done = True
 
-        self.epoch_reward += reward
+        if done:
+            info['episode'] = {'r': self.episode_reward,
+                               'l': self.action_counter}
+            self.episode_reward = 1e-8
+            self.action_counter = 0
 
         return obs, mask, reward, done, info
 
 
     def reset(self)->None:
         self.chain.reset()
-        self.action_counter = 0
         self.__preprocess()
         return self.get_obs()
 
 
     def terminate(self)->None:
+        # TODO: Terminate Environment
         pass
 
 
     def save_if_best(self)->None:
+        # TODO: Save Agent State
         pass

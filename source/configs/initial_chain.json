@@ -1,7 +1,7 @@
 {
     "ReverseProxy":
     {
-        "medium": 1
+        "small": 1
     },
     "WebServer":
     {

@@ -47,6 +47,8 @@ class Component(object):
         self.TTL_tracker = {}
         self.util = None
 
+        self.compute_resources()
+
 
     def __str__(self):
         return self.name
