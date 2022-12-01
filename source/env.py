@@ -43,11 +43,9 @@ class CustomEnv(gym.Env):
         self.action_counter = 0
         self.epoch_counter = 0
         self.steps_per_epoch = steps_per_epoch
-
-        self.epoch_reward = 0
+        self.episode_done = False
         self.BASE_RWD = 1e-4
-        self.best_epoch = 0
-    
+        
 
     def __preprocess(self)->None:
         flavors_file = os.path.join(os.path.dirname(__file__),
@@ -148,6 +146,7 @@ class CustomEnv(gym.Env):
         act_comp = metrics[5]
         if act_comp != -1:
             self.act_comp = act_comp
+        self.episode_done = metrics[6]
 
         for comp,cutil,mutil in zip(self.components,cutils,mutils):
             comp.update_util(cutil, mutil)

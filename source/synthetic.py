@@ -32,11 +32,10 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         metrics = requests.get(url).json()
 
         arrival_rate = metrics["arrival_rate"]
-
         lcpu = np.array(metrics["load"][0])
         lmem = np.array(metrics["load"][1])
-
-        ep_done = metrics["done"]
+        latency = metrics["latency"]
+        done = metrics["done"]
 
         act_type = 0
         act_comp = -1
@@ -50,12 +49,9 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_comp = i
 
-        latency = 10 #TODO
-        # load = zip([lcpu[i]/cpu[i] for i in range(len(cpu))],
-        #             [lmem[i]/mem[i] for i in range(len(mem))])
         loadc = [max(lcpu[i]/cpu[i],1) for i in range(len(cpu))]
         loadm = [max(lmem[i]/mem[i],1) for i in range(len(mem))]
-        return arrival_rate, loadc, loadm, latency, act_type, act_comp
+        return arrival_rate, loadc, loadm, latency, act_type, act_comp, done
 
 
 if __name__ == "__main__":
