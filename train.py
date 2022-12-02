@@ -18,9 +18,9 @@ mode = 'synthetic'
 threads = 4
 model_path = "./data/"
 
-savefile = "source/configs/hyperparams.json"
-savefile = os.path.join(os.path.dirname(os.path.abspath(__file__)), savefile)
-hyperparams = json.load(open(savefile, "r"))
+hp_file = "source/configs/hyperparams.json"
+hp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), hp_file)
+hyperparams = json.load(open(hp_file, "r"))
 
 roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim,
                mode=mode, threads=threads, model_path=model_path,               

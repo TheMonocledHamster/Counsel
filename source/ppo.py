@@ -322,14 +322,15 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
                     print('Warning: trajectory cut off by epoch at %d steps.'%ep_len, flush=True)
                 # if trajectory didn't reach terminal state, bootstrap value target
                 if timeout or epoch_ended:
-                    _, v, _ = ac.step(torch.as_tensor(o, dtype=torch.float32))
+                    _, v, _ = ac.step(torch.as_tensor(o, dtype=torch.float32), torch.as_tensor(m, dtype=torch.float32))
                 else:
                     v = 0
                 buf.finish_path(v)
                 if terminal:
                     # only save EpRet / EpLen if trajectory finished
                     logger.store(EpRet=ep_ret, EpLen=ep_len)
-                o, m, ep_ret, ep_len = env.reset(), 0, 0
+                obs, ep_ret, ep_len = env.reset(), 0, 0
+                o, m = obs
 
 
         # Save model

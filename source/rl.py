@@ -62,7 +62,7 @@ class RL(object):
                          num_gnn_layer=self.num_gnn_layer)
         ac = GCNActorCritic
 
-        # mpi_fork(self.threads)
+        mpi_fork(self.threads)
 
         if algo == "ppo":
             ppo(env_fn=self.get_env, actor_critic=ac, ac_kwargs=ac_kwargs,

@@ -68,7 +68,7 @@ class CustomEnv(gym.Env):
 
     def get_obs(self,
                 comp:Component=None,
-                arrival_rate:float=None
+                arrival_rate:float=0.0
                 )->Tuple[np.ndarray,np.array]:
         
         E_origin = self.chain.get_adj_matrix()
