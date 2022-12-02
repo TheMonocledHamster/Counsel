@@ -1,0 +1,4 @@
+[submodule "load-gen"]
+	path = load-gen
+	url = git@github.com:TheMonocledHamster/SynConfLoad.git
+	branch = deploy
