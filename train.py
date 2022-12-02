@@ -13,7 +13,6 @@ set_slo(slo, freq, knob)
 
 budget = [60, 124]
 overrun_lim = 0.2
-
 mode = 'synthetic'
 threads = 4
 model_path = "./data/"
