@@ -49,8 +49,8 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_comp = i
 
-        loadc = [lcpu[i]/cpu[i] for i in range(len(cpu))]
-        loadm = [lmem[i]/mem[i] for i in range(len(mem))]
+        loadc = [lcpu[i]/(cpu[i]+1e-7) for i in range(len(cpu))]
+        loadm = [lmem[i]/(mem[i]+1e-7) for i in range(len(mem))]
 
         rho = np.sqrt((np.mean(loadc)**2 + np.mean(loadm)**2)/2)
 

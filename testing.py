@@ -11,4 +11,4 @@ env = CustomEnv("_", 2048, [30,60], slo, 0.2, 'synthetic')
 set_slo(slo, freq, knob)
 set_base(env.components)
 for i in range(15):
-    print(env.step(6)[2])
+    print(env.step(0)[2])
