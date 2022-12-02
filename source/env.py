@@ -59,6 +59,7 @@ class CustomEnv(gym.Env):
         self.chain.init_components(init_conf, self.budget)
         self.components:List[Component] = list(self.chain.components.values())
         for c in self.components:
+            c.compute_resources()
             c.update_util(1,1)
 
 
@@ -84,9 +85,9 @@ class CustomEnv(gym.Env):
         ob = np.concatenate((E, F), axis=1)
 
         mask = np.ones([self.action_space.n])
-        if comp is not None:
+        if comp is not None and self.act_type == 0:
             instances = comp.get_instances()
-            for i in range(self.action_space.n):
+            for i in range(1,self.action_space.n):
                 if self.flavors[i][0] not in instances:
                     mask[i] = 0
 
@@ -118,19 +119,20 @@ class CustomEnv(gym.Env):
 
 
     def step(self,action)->None:
+        invalid_flag = False
         info = {}
 
         self.step_counter += 1
-
-        act_flavor = int(action)
+        action = int(action)
+        act_flavor = self.flavors[action][0]
 
         comp = self.components[self.act_comp]
-        invalid_flag = (comp.add_instance(act_flavor) if self.act_type
-                        else comp.del_instance(act_flavor))
-        if act_flavor == 0 or self.mode == 'synthetic':
-            invalid_flag = False
+
+        if action != 0:
+            invalid_flag = (comp.add_instance(act_flavor) if self.act_type
+                            else comp.del_instance(act_flavor))
         
-        self.action_counter += min(act_flavor, 1)
+        self.action_counter += min(action, 1)
 
         # Sync call
         if self.mode == 'synthetic':
@@ -147,10 +149,14 @@ class CustomEnv(gym.Env):
         act_comp = metrics[5]
         if act_comp != -1:
             self.act_comp = act_comp
+        else:
+            self.act_comp = np.random.randint(len(self.components))
         done = metrics[6]
 
         for comp,cutil,mutil in zip(self.components,cutils,mutils):
             comp.update_util(cutil, mutil)
+
+        comp = self.components[self.act_comp]
         obs, mask = self.get_obs(comp, arrival_rate)
 
         reward = self.BASE_RWD

@@ -38,7 +38,7 @@ class Component(object):
     * update_util(arrival_rate:int, service_rate:int)->None
     : update the queueing theory utilization of the component
     """
-    def __init__(self, name:str, TTL:int=10):
+    def __init__(self, name:str, TTL:int=0):
         self.name = name
         self.flavors = OrderedDict(json.load(open(flavors_config)))
         self.config = Counter()
@@ -100,7 +100,7 @@ class Component(object):
                 elif self.config[flavor] == 1:
                     self.config.subtract([flavor])
                 else:
-                    raise RuntimeError("Instance count is non-positive")
+                    return True
         elif isinstance(flavor, list):
             for f,c in zip(flavor,count):
                 if not f in self.flavors:
@@ -111,9 +111,9 @@ class Component(object):
                     if self.config[f] > 1:
                         self.config.subtract([f])
                     elif self.config[f] == 1:
-                        self.config.pop(f)
+                        self.config.subtract([f])
                     else:
-                        raise RuntimeError("Instance count is non-positive")
+                        return True
         return False
 
     def compute_resources(self)->None:
@@ -132,5 +132,5 @@ if __name__ == '__main__':
     c.add_instance('small', 3)
     c.add_instance('medium', 2)
     c.add_instance('large', 1)
-    c.del_instance('small', 2)
+    c.del_instance('small', 3)
     print(c.get_instances())

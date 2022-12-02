@@ -4,7 +4,6 @@ from typing import Tuple, List
 from .env import CustomEnv
 from .core import GCNActorCritic
 from .ppo import ppo
-from .service_chain.chain import Chain
 from .utils.mpi_tools import mpi_fork
 from .utils.run_utils import setup_logger_kwargs
 

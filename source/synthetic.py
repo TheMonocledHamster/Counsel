@@ -45,7 +45,7 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
                 flag = True
                 act_type = 1
                 act_comp = i
-            elif lcpu[i] < cpu[i]/2 and lmem[i] < mem[i]/2 and not flag:
+            elif lcpu[i] < cpu[i]*0.6 and lmem[i] < mem[i]*0.6 and not flag:
                 flag = True
                 act_comp = i
 
@@ -60,15 +60,3 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
             latency = 0.98 * slo * rho
 
         return arrival_rate, loadc, loadm, latency, act_type, act_comp, done
-
-if __name__ == "__main__":
-    slo = int(np.exp(np.random.randint(240,840)/100))
-    freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
-    knob = 0.01 # For over, under and near provisioning
-    print("SLO: {}, Freq: {}".format(slo, freq))
-    from env import CustomEnv
-    env = CustomEnv("_", 2048, [30,60], slo, 0.2, 'synthetic')
-    set_slo(slo, freq, knob)
-    set_base(env.components)
-    for i in range(15):
-        print(env.step(1)[2])

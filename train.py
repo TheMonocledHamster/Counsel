@@ -7,14 +7,14 @@ from source.rl import RL
 
 slo = int(np.exp(np.random.randint(240,840)/100))
 freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
-knob = 0.01 # For over, under and near provisioning
+knob = 0.05 # For over, under and near provisioning
 print(f"SLO: {slo}, Freq: {freq}, Knob: {knob}")
 set_slo(slo, freq, knob)
 
-budget = [60, 124]
+budget = [int(6/knob), int(12/knob)]
 overrun_lim = 0.2
 mode = 'synthetic'
-threads = 4
+threads = 1
 model_path = "./data/"
 
 hp_file = "source/configs/hyperparams.json"
