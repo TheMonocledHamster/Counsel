@@ -11,10 +11,10 @@ knob = 0.05 # For over, under and near provisioning
 print(f"SLO: {slo}, Freq: {freq}, Knob: {knob}")
 set_slo(slo, freq, knob)
 
-budget = [int(6/knob), int(12/knob)]
+budget = [600,900]
 overrun_lim = 0.2
 mode = 'synthetic'
-threads = 1
+threads = 4
 model_path = "./data/"
 
 hp_file = "source/configs/hyperparams.json"

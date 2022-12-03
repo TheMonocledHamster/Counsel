@@ -12,7 +12,7 @@
     "train_pi_iters": 80,
     "train_v_iters": 80,
     "lam": 0.97,
-    "max_ep_len": 1500,
-    "target_kl": 0.01,
+    "max_ep_len": 15000,
+    "target_kl": 0.05,
     "save_freq": 10
 }
