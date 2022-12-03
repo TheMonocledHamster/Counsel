@@ -5,21 +5,21 @@ from source.synthetic import set_slo
 from source.rl import RL
 
 
-slo = int(np.exp(np.random.randint(240,840)/100))
-freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
-knob = 0.05 # For over, under and near provisioning
-print(f"SLO: {slo}, Freq: {freq}, Knob: {knob}")
-set_slo(slo, freq, knob)
-
-budget = [600,900]
-overrun_lim = 0.2
-mode = 'synthetic'
-threads = 4
-model_path = "./data/"
-
 hp_file = "source/configs/hyperparams.json"
 hp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), hp_file)
 hyperparams = json.load(open(hp_file, "r"))
+
+slo = int(np.exp(np.random.randint(240,840)/100))
+freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
+knob = hyperparams["knob"] # For over, under and near provisioning
+print(f"SLO: {slo}, Freq: {freq}, Knob: {knob}")
+set_slo(slo, freq, knob)
+
+budget = hyperparams["budget"]
+overrun_lim = hyperparams["budget_relax"]
+mode = hyperparams["mode"]
+threads = hyperparams["threads"]
+model_path = hyperparams["model_path"]
 
 roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim,
                mode=mode, threads=threads, model_path=model_path,               
