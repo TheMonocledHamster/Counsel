@@ -15,7 +15,7 @@
     "gamma":	0.99,
     "lam":	0.97,
     "logger":	{
-        "<source.utils.logx.EpochLogger object at 0x7fadc003ea40>":	{
+        "<source.utils.logx.EpochLogger object at 0x7fb9d4a4e8c0>":	{
             "epoch_dict":	{},
             "exp_name":	"test",
             "first_row":	true,
@@ -33,12 +33,12 @@
         "exp_name":	"test",
         "output_dir":	"/home/adi/Work/RoboConf/source/data/test/test_s0"
     },
-    "max_ep_len":	1500,
+    "max_ep_len":	15000,
     "pi_lr":	0.0003,
     "save_freq":	10,
     "seed":	0,
     "steps_per_epoch":	10000,
-    "target_kl":	0.01,
+    "target_kl":	0.05,
     "train_pi_iters":	80,
     "train_v_iters":	80,
     "vf_lr":	0.001
