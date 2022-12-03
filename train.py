@@ -20,25 +20,27 @@ overrun_lim = hyperparams["budget_relax"]
 mode = hyperparams["mode"]
 threads = hyperparams["threads"]
 model_path = hyperparams["model_path"]
+algo = hyperparams["algo"]
 
-roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim,
-               mode=mode, threads=threads, model_path=model_path,               
-               hidden_sizes=hyperparams["hidden_sizes"],
-               num_gnn_layer=hyperparams["num_gnn_layer"],
-               seed=hyperparams["seed"],
-               steps_per_epoch=hyperparams["steps_per_epoch"],
-               epochs=hyperparams["epochs"],
-               max_action=hyperparams["max_action"],
-               gamma=hyperparams["gamma"],
-               clip_ratio=hyperparams["clip_ratio"],
-               pi_lr=hyperparams["pi_lr"],
-               vf_lr=hyperparams["vf_lr"],
-               train_pi_iters=hyperparams["train_pi_iters"],
-               train_v_iters=hyperparams["train_v_iters"],
-               lam=hyperparams["lam"],
-               max_ep_len=hyperparams["max_ep_len"],
-               target_kl=hyperparams["target_kl"],
-               save_freq=hyperparams["save_freq"]
-               )
+roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim, 
+              mode=mode, threads=threads, model_path=model_path, 
+              exp_name=hyperparams["exp_name"], 
+              hidden_sizes=hyperparams["hidden_sizes"], 
+              num_gnn_layer=hyperparams["num_gnn_layer"], 
+              seed=hyperparams["seed"], 
+              steps_per_epoch=hyperparams["steps_per_epoch"], 
+              epochs=hyperparams["epochs"], 
+              max_action=hyperparams["max_action"], 
+              gamma=hyperparams["gamma"], 
+              clip_ratio=hyperparams["clip_ratio"], 
+              pi_lr=hyperparams["pi_lr"], 
+              vf_lr=hyperparams["vf_lr"], 
+              train_pi_iters=hyperparams["train_pi_iters"], 
+              train_v_iters=hyperparams["train_v_iters"], 
+              lam=hyperparams["lam"], 
+              max_ep_len=hyperparams["max_ep_len"], 
+              target_kl=hyperparams["target_kl"], 
+              save_freq=hyperparams["save_freq"]
+              )
 
-roboconf.train("ppo")
+roboconf.train(algo)

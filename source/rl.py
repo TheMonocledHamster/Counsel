@@ -1,7 +1,7 @@
 import time
 from typing import Tuple, List
 
-from .env import CustomEnv
+from .env import CloudEnv
 from .core import GCNActorCritic
 from .ppo import ppo
 from .utils.mpi_tools import mpi_fork
@@ -12,8 +12,8 @@ class RL(object):
     def __init__(self, slo:float, budget:List[int], overrun_lim:float, 
                  mode:str, threads:int, model_path:str,
                  # hyperparameters
-                 hidden_sizes:Tuple, num_gnn_layer:int, seed:int,
-                 steps_per_epoch:int, epochs:int, max_action:int,
+                 exp_name:str, hidden_sizes:Tuple, num_gnn_layer:int,
+                 seed:int, steps_per_epoch:int, epochs:int, max_action:int,
                  gamma:float, clip_ratio:float, pi_lr:float, vf_lr:float,
                  train_pi_iters:int, train_v_iters:int, lam:float,
                  max_ep_len:int, target_kl:float, save_freq:int):
@@ -48,9 +48,9 @@ class RL(object):
 
 
     def get_env(self):
-        self.envs.append(CustomEnv(self.log_dir, self.steps_per_epoch,
-                                   self.budget, self.slo,
-                                   self.overrun_lim, self.mode))
+        self.envs.append(CloudEnv(self.log_dir, self.steps_per_epoch,
+                                  self.budget, self.slo,
+                                  self.overrun_lim, self.mode))
         return self.envs[-1]
 
 
@@ -75,5 +75,5 @@ class RL(object):
                 )
 
         for env in self.envs:
-            env:CustomEnv
+            env:CloudEnv
             env.terminate()

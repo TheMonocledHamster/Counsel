@@ -8,7 +8,7 @@ from . import core
 from .utils.logx import EpochLogger
 from .utils.mpi_pytorch import setup_pytorch_for_mpi, sync_params, mpi_avg_grads
 from .utils.mpi_tools import mpi_fork, mpi_avg, proc_id, mpi_statistics_scalar, num_procs
-from .env import CustomEnv
+from .env import CloudEnv
 
 
 class PPOBuffer:
@@ -207,7 +207,7 @@ def ppo(env_fn, actor_critic=core.GCNActorCritic, ac_kwargs=dict(), seed=0,
     np.random.seed(seed)
 
     # Instantiate environment
-    env:CustomEnv = env_fn()
+    env:CloudEnv = env_fn()
     obs_dim = env.observation_space.shape
     act_dim = env.action_space.shape
 

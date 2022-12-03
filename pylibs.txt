@@ -5,6 +5,5 @@ scipy
 numpy
 fastapi
 "uvicorn[standard]"
-psycopg2
 requests
 joblib

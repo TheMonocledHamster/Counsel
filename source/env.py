@@ -12,7 +12,7 @@ from .service_chain.component import Component
 from .synthetic import call_load_server, set_base
 
 
-class CustomEnv(gym.Env):
+class CloudEnv(gym.Env):
     def __init__(
                 self, log_dir:str, steps_per_epoch:int,
                 budget:List[int], slo_latency:float,
@@ -195,9 +195,4 @@ class CustomEnv(gym.Env):
 
     def terminate(self)->None:
         # TODO: Terminate Environment
-        pass
-
-
-    def save_if_best(self)->None:
-        # TODO: Save Agent State
         pass
