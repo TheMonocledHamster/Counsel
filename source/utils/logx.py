@@ -48,7 +48,7 @@ class Logger:
     state of a training run, and the trained model.
     """
 
-    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None):
+    def __init__(self, output_dir=None, output_fname='progress.csv', exp_name=None):
         """
         Initialize a Logger.
 
@@ -261,6 +261,22 @@ class EpochLogger(Logger):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.epoch_dict = dict()
+        self.epoch_dict = {
+            'Epoch': [],
+            'EpRet': [],
+            'EpLen': [],
+            'VVals': [],
+            'TotalEnvInteracts': [],
+            'LossPi': [],
+            'LossV': [],
+            'DeltaLossPi': [],
+            'DeltaLossV': [],
+            'Entropy': [],
+            'KL': [],
+            'ClipFrac': [],
+            'StopIter': [],
+            'Time': []
+        }
 
     def store(self, **kwargs):
         """
