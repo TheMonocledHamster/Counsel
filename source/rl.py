@@ -40,6 +40,7 @@ class RL(object):
         self.target_kl = target_kl
         self.save_freq = save_freq
         self.max_ep_len = max_ep_len
+        self.exp_name = exp_name
         
         log_dir_name_list = [int(time.time()),self.steps_per_epoch]
         self.log_dir = '_'.join([str(i) for i in log_dir_name_list])
@@ -55,7 +56,7 @@ class RL(object):
 
 
     def train(self, algo):
-        logger_kwargs = setup_logger_kwargs("test",self.seed)
+        logger_kwargs = setup_logger_kwargs(self.exp_name,self.seed)
         ac_kwargs = dict(graph_encoder_hidden=256,
                          hidden_sizes=self.hidden_sizes,
                          num_gnn_layer=self.num_gnn_layer)
