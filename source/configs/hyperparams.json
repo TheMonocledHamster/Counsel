@@ -6,7 +6,7 @@
     "mode": "synthetic",
     "model_path": "./data/",
     "knob": 0.05,
-    "algorithm": "ppo",
+    "algo": "ppo",
     "num_gnn_layer": 2,
     "hidden_sizes": [64, 64],
     "epochs": 10000,
@@ -22,5 +22,5 @@
     "lam": 0.97,
     "max_ep_len": 1440,
     "target_kl": 0.05,
-    "save_freq": 100
+    "save_freq": 10
 }
