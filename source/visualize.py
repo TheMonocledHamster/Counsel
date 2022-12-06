@@ -57,5 +57,5 @@ plt.title("Reward Per Component vs. Epoch Count")
 plt.xlabel("Epoch")
 plt.ylabel("Reward")
 
-# plt.show()
-plt.savefig(dir+"reward.png")
+plt.show()
+# plt.savefig(dir+"reward.png")
