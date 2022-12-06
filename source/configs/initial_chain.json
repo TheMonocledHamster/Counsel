@@ -1,14 +1,17 @@
 {
     "ReverseProxy":
     {
-        "small": 1
+        "small": 1,
+        "large": 1
     },
     "WebServer":
     {
-        "xlarge": 1
+        "medium": 3,
+        "xlarge": 2
     },
     "Database":
     {
-        "large": 1
+        "medium": 2,
+        "large": 3
     }
 }
