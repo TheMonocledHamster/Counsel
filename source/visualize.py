@@ -33,26 +33,29 @@ df = pd.read_csv(dir+csv_file, sep='\t', index_col=0)
 
 # Calculate average reward
 df['Reward'] = df['AverageEpRet'] / (df['AverageEpLen'] * 3)
+df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * 2.5)
+df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * 3.5)
 df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * 3)
 
 sns.set_style("darkgrid")
 sns.set_palette("Set1")
 fig, ax = plt.subplots(figsize=(20, 10))
 
-middle = gaussian_filter1d(df['Reward'], sigma=3)
+smooth_mean = gaussian_filter1d(df['Reward'], sigma=3)
 upper = gaussian_filter1d(df['Reward'] + df['StdReward'], sigma=3)
 lower = gaussian_filter1d(df['Reward'] - df['StdReward'], sigma=3)
+max = gaussian_filter1d(df['MaxReward'], sigma=3)
+min = gaussian_filter1d(df['MinReward'], sigma=3)
 
-# np.clip(lower, 0, 1, out=lower)
-# np.clip(upper, 0, 1, out=upper)
 
-ax.plot(df.index, df['Reward'], '--', color='gray', alpha=0.3)
-ax.plot(df.index, middle, label='Reward')
+
+ax.plot(df.index, df['Reward'], '--', color='grey', alpha=0.3, linewidth=0.5)
+ax.plot(df.index, smooth_mean, label='Reward', color='black')
 # ax.fill_between(df.index, lower, upper, alpha=0.1)
+# ax.plot(df.index, max, label='Max Reward', alpha=0.5, linewidth=0.7, color='green')
+# ax.plot(df.index, min, label='Min Reward', alpha=0.5, linewidth=0.7, color='red')
 
 
-# Output plot to file
-# plot.figure.savefig(dir+"reward.png")
 plt.title("Reward Per Component vs. Epoch Count")
 plt.xlabel("Epoch")
 plt.ylabel("Reward")
