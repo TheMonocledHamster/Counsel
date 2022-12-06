@@ -41,7 +41,7 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         act_comp = -1
         flag = False
         for i in range(len(cpu)):
-            if lcpu[i] > cpu[i] or lmem[i] > mem[i]:
+            if lcpu[i] * 0.95 > cpu[i] or lmem[i] * 0.95 > mem[i]:
                 flag = True
                 act_type = 1
                 act_comp = i
@@ -55,8 +55,8 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         rho = np.sqrt((np.mean(loadc)**2 + np.mean(loadm)**2)/2)
 
         if rho < 1:
-            latency = 0.98 * slo
+            latency = 0.95 * slo
         else:
-            latency = 0.98 * slo * rho
+            latency = 0.95 * slo * rho
 
         return arrival_rate, loadc, loadm, latency, act_type, act_comp, done

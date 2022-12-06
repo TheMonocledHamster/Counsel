@@ -8,3 +8,4 @@ fastapi
 requests
 psycopg2
 joblib
+seaborn

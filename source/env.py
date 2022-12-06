@@ -94,7 +94,7 @@ class CloudEnv(gym.Env):
         return ob, mask
 
 
-    def calculate_reward(self)->float:
+    def calculate_reward(self, action:int)->float:
         comp:Component = self.components[self.act_comp]
         upsilon_i = min(comp.util, 1)
         upsilon_k = min(sum([ocomp.util for ocomp in self.components]),
@@ -102,15 +102,15 @@ class CloudEnv(gym.Env):
 
         alpha_cpu = (self.budget[0] - comp.cpu)
         alpha_mem = (self.budget[1] - comp.mem)
-        cpu_, mem_ = self.flavors[self.act_type][1][:]
+        cpu_, mem_ = self.flavors[action][1][:]
 
         # Utility functions
         sgn = lambda x: (x>0)-(x<0)
         dim_rwd = lambda a,x: sgn(a-x)*abs(1-x/a)
 
         # Reward
-        rwd_cpu = dim_rwd(alpha_cpu, cpu_)
-        rwd_mem = dim_rwd(alpha_mem, mem_)
+        rwd_cpu = dim_rwd(alpha_cpu + 1e-8, cpu_)
+        rwd_mem = dim_rwd(alpha_mem + 1e-8, mem_)
         reward = upsilon_k + upsilon_i*(rwd_cpu + rwd_mem)/2
         reward = max(0.01, reward)
 
@@ -128,7 +128,7 @@ class CloudEnv(gym.Env):
 
         comp = self.components[self.act_comp]
 
-        if action != 0:
+        if action != 0 and self.act_comp != -1:
             invalid_flag = (comp.add_instance(act_flavor) if self.act_type
                             else comp.del_instance(act_flavor))
         
@@ -146,11 +146,7 @@ class CloudEnv(gym.Env):
         mutils = metrics[2]
         latency = metrics[3]
         self.act_type = metrics[4]
-        act_comp = metrics[5]
-        if act_comp != -1:
-            self.act_comp = act_comp
-        else:
-            self.act_comp = np.random.randint(len(self.components))
+        self.act_comp = metrics[5]
         done = metrics[6]
 
         for comp,cutil,mutil in zip(self.components,cutils,mutils):
@@ -170,7 +166,9 @@ class CloudEnv(gym.Env):
         if invalid_flag:
             reward *= 0.5
         if reward == self.BASE_RWD:
-            reward = self.calculate_reward() # Guaranteed reward >= 0.01
+            reward = self.calculate_reward(action) # Guaranteed reward >= 0.01
+        
+        reward = max(1e-48, reward)
         
         self.episode_reward += reward
 
@@ -194,5 +192,5 @@ class CloudEnv(gym.Env):
 
 
     def terminate(self)->None:
-        # TODO: Terminate Environment
+        # TODO: Terminate Environment?
         pass

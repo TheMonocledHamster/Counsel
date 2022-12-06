@@ -15,7 +15,7 @@
     "gamma":	0.95,
     "lam":	0.97,
     "logger":	{
-        "<source.utils.logx.EpochLogger object at 0x7fee86b32a70>":	{
+        "<source.utils.logx.EpochLogger object at 0x7f6cb762ead0>":	{
             "epoch_dict":	{
                 "ClipFrac":	[],
                 "DeltaLossPi":	[],
