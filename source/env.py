@@ -168,7 +168,7 @@ class CloudEnv(gym.Env):
         if reward == self.BASE_RWD:
             reward = self.calculate_reward(action) # Guaranteed reward >= 0.01
         
-        reward = max(1e-48, reward)
+        reward = max(1e-40, reward)
         
         self.episode_reward += reward
 

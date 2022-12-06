@@ -27,3 +27,6 @@ csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 # Read CSV file
 df = pd.read_csv(csv_file, sep='\t', index_col=0)
 print(df.tail())
+
+# Plot Average Step Reward per component vs. Epoch Number
+sns.lineplot(data=df, x="Epoch", y="Reward")

@@ -11,11 +11,11 @@
     "clip_ratio":	0.2,
     "env_fn":	"get_env",
     "epochs":	1000,
-    "exp_name":	"op",
+    "exp_name":	"test",
     "gamma":	0.95,
     "lam":	0.97,
     "logger":	{
-        "<source.utils.logx.EpochLogger object at 0x7f64f38172e0>":	{
+        "<source.utils.logx.EpochLogger object at 0x7ff3e0113430>":	{
             "epoch_dict":	{
                 "ClipFrac":	[],
                 "DeltaLossPi":	[],
@@ -32,21 +32,21 @@
                 "TotalEnvInteracts":	[],
                 "VVals":	[]
             },
-            "exp_name":	"op",
+            "exp_name":	"test",
             "first_row":	true,
             "log_current_row":	{},
             "log_headers":	[],
-            "output_dir":	"/home/adi/Work/RoboConf/source/data/op/op_s0",
+            "output_dir":	"/home/adi/Work/RoboConf/source/data/test/test_s0",
             "output_file":	{
-                "<_io.TextIOWrapper name='/home/adi/Work/RoboConf/source/data/op/op_s0/progress.csv' mode='w' encoding='UTF-8'>":	{
+                "<_io.TextIOWrapper name='/home/adi/Work/RoboConf/source/data/test/test_s0/progress.csv' mode='w' encoding='UTF-8'>":	{
                     "mode":	"w"
                 }
             }
         }
     },
     "logger_kwargs":	{
-        "exp_name":	"op",
-        "output_dir":	"/home/adi/Work/RoboConf/source/data/op/op_s0"
+        "exp_name":	"test",
+        "output_dir":	"/home/adi/Work/RoboConf/source/data/test/test_s0"
     },
     "max_ep_len":	1440,
     "pi_lr":	0.0003,
