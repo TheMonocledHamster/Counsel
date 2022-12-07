@@ -205,5 +205,5 @@ class CloudEnv(gym.Env):
 
 
     def terminate(self)->None:
-        
-        self.writer.close()
+        # TODO ?
+        pass

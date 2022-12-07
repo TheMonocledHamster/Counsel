@@ -32,7 +32,7 @@ csv_file = 'progress.csv'
 df = pd.read_csv(dir+csv_file, sep='\t', index_col=0)
 
 # Calculate average reward
-df['Reward'] = df['AverageEpRet'] / (df['EpLen'] * 3)
+df['Reward'] = df['AverageEpRet'] / (df['AverageEpLen'] * 3)
 # df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * 3)
 # df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * 3)
 # df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * 3)
@@ -60,5 +60,5 @@ plt.title("Reward Per Component vs Time Steps")
 plt.xlabel("Steps Taken (1e7)")
 plt.ylabel("Reward")
 
-# plt.show()
-plt.savefig(dir+"reward.png")
+plt.show()
+# plt.savefig(dir+"reward.png")
