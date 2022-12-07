@@ -32,33 +32,33 @@ csv_file = 'progress.csv'
 df = pd.read_csv(dir+csv_file, sep='\t', index_col=0)
 
 # Calculate average reward
-df['Reward'] = df['AverageEpRet'] / (df['AverageEpLen'] * 3)
-df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * 2.5)
-df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * 3.5)
-df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * 3)
+df['Reward'] = df['AverageEpRet'] / (df['EpLen'] * 3)
+# df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * 3)
+# df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * 3)
+# df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * 3)
 
 sns.set_style("darkgrid")
 sns.set_palette("Set1")
 fig, ax = plt.subplots(figsize=(20, 10))
 
 smooth_mean = gaussian_filter1d(df['Reward'], sigma=3)
-upper = gaussian_filter1d(df['Reward'] + df['StdReward'], sigma=3)
-lower = gaussian_filter1d(df['Reward'] - df['StdReward'], sigma=3)
-max = gaussian_filter1d(df['MaxReward'], sigma=3)
-min = gaussian_filter1d(df['MinReward'], sigma=3)
+# upper = gaussian_filter1d(df['Reward'] + df['StdReward'], sigma=3)
+# lower = gaussian_filter1d(df['Reward'] - df['StdReward'], sigma=3)
+# max = gaussian_filter1d(df['MaxReward'], sigma=3)
+# min = gaussian_filter1d(df['MinReward'], sigma=3)
 
 
 
-ax.plot(df.index, df['Reward'], '--', color='grey', alpha=0.3, linewidth=0.5)
-ax.plot(df.index, smooth_mean, label='Reward', color='black')
+ax.plot(df['TotalEnvInteracts'], df['Reward'], '--', color='grey', alpha=0.3, linewidth=0.5)
+ax.plot(df['TotalEnvInteracts'], smooth_mean, label='Reward', color='red')
 # ax.fill_between(df.index, lower, upper, alpha=0.1)
 # ax.plot(df.index, max, label='Max Reward', alpha=0.5, linewidth=0.7, color='green')
 # ax.plot(df.index, min, label='Min Reward', alpha=0.5, linewidth=0.7, color='red')
 
 
-plt.title("Reward Per Component vs. Epoch Count")
-plt.xlabel("Epoch")
+plt.title("Reward Per Component vs Time Steps")
+plt.xlabel("Steps Taken (1e7)")
 plt.ylabel("Reward")
 
-plt.show()
-# plt.savefig(dir+"reward.png")
+# plt.show()
+plt.savefig(dir+"reward.png")

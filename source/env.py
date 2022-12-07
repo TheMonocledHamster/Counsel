@@ -1,7 +1,9 @@
 import json
 import os
 import sys
+from uuid import uuid4
 from typing import List, Tuple
+import csv
 
 import gym
 from gym.spaces import Discrete
@@ -18,8 +20,11 @@ class CloudEnv(gym.Env):
                 budget:List[int], slo_latency:float,
                 overrun_lim:float, mode:str='synthetic'
                 ):
-
-        self.log_dir = log_dir
+        os.makedirs(log_dir, exist_ok=True)
+        self.log_path = os.path.join(log_dir, uuid4().hex+'.csv')
+        with open(self.log_path, 'w+') as f:
+            writer = csv.writer(f)
+            writer.writerow(['episode', 'steps', 'actions', 'episode_reward'])
         if mode not in ['synthetic', 'live']:
             raise ValueError('Invalid mode')
         self.mode = mode
@@ -42,9 +47,11 @@ class CloudEnv(gym.Env):
         print("obv_space size: {}".format(self.observation_space.shape))
 
         self.step_counter = 0
+        self.prev_steps = 0
         self.action_counter = 0
         self.epoch_counter = 0
         self.steps_per_epoch = steps_per_epoch
+        self.episode_counter = 0
         self.episode_reward = 1e-8
         self.BASE_RWD = 1e-4
         
@@ -177,8 +184,14 @@ class CloudEnv(gym.Env):
             done = True
 
         if done:
-            info['episode'] = {'r': self.episode_reward,
-                               'l': self.action_counter}
+            self.episode_counter += 1
+            with open(self.log_path, 'a') as f:
+                writer = csv.writer(f)
+                writer.writerow([self.episode_counter,
+                                 self.step_counter - self.prev_steps,
+                                 self.action_counter,
+                                 self.episode_reward])
+            self.prev_steps = self.step_counter
             self.episode_reward = 1e-8
             self.action_counter = 0
 
@@ -192,5 +205,5 @@ class CloudEnv(gym.Env):
 
 
     def terminate(self)->None:
-        # TODO: Terminate Environment?
-        pass
+        
+        self.writer.close()
