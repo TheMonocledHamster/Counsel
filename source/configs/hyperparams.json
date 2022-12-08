@@ -1,11 +1,11 @@
 {
-    "exp_name": "up",
+    "exp_name": "op",
     "threads": 4,
     "budget": [600, 900],
     "budget_relax": 0.2,
     "mode": "synthetic",
     "model_path": "./data/",
-    "knob": 0.07,
+    "knob": 0.02,
     "algo": "ppo",
     "num_gnn_layer": 2,
     "hidden_sizes": [64, 64],
