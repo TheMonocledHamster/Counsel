@@ -56,7 +56,7 @@ ax.plot(df['TotalEnvInteracts'], smooth_mean, label='Reward', color='red')
 # ax.plot(df.index, min, label='Min Reward', alpha=0.5, linewidth=0.7, color='red')
 
 
-plt.title("Reward Per Component vs Time Steps")
+plt.title("Normalized Resource Utilization vs Time Steps")
 plt.xlabel("Steps Taken (1e7)")
 plt.ylabel("Reward")
 
