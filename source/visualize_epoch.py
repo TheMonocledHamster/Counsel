@@ -24,8 +24,8 @@ else:
     print("Using default seed")
     seed = 0
 
-dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-            'data/'+exp_name+'/'+exp_name+'_s'+str(seed) + '/')
+dir = os.path.join(os.path.dirname(__file__),'data/'+
+      exp_name+'/'+exp_name+'_s'+str(seed) + '/')
 csv_file = 'progress.csv'
 
 # Read CSV file
