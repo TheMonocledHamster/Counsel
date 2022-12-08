@@ -6,6 +6,7 @@ import pandas as pd
 import os
 
 COMP_N = 3
+save_dir = os.path.join(os.path.dirname(__file__), 'charts/epoch_wise/')
 
 # Read path to CSV file from command line
 parser = argparse.ArgumentParser()
@@ -61,5 +62,5 @@ plt.title("Resource Utilization vs Time Steps")
 plt.xlabel("Steps Taken (1e7)")
 plt.ylabel("Resource Utilization")
 
-plt.show()
-# plt.savefig(dir+"reward.png")
+# plt.show()
+plt.savefig(save_dir+f"{exp_name}_{COMP_N}_rewards.png")
