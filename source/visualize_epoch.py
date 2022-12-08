@@ -1,10 +1,11 @@
 from scipy.ndimage import gaussian_filter1d
-import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import seaborn as sns
 import pandas as pd
 import os
+
+COMP_N = 3
 
 # Read path to CSV file from command line
 parser = argparse.ArgumentParser()
@@ -32,10 +33,10 @@ csv_file = 'progress.csv'
 df = pd.read_csv(dir+csv_file, sep='\t', index_col=0)
 
 # Calculate average reward
-df['Reward'] = df['AverageEpRet'] / (df['AverageEpLen'] * 3)
-# df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * 3)
-# df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * 3)
-# df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * 3)
+df['Reward'] = df['AverageEpRet'] / (df['AverageEpLen'] * COMP_N)
+# df['MaxReward'] = df['MaxEpRet'] / (df['MaxEpLen'] * COMP_N)
+# df['MinReward'] = df['MinEpRet'] / (df['MinEpLen'] * COMP_N)
+# df['StdReward'] = df['StdEpRet'] / (df['AverageEpLen'] * COMP_N)
 
 sns.set_style("darkgrid")
 sns.set_palette("Set1")
@@ -56,9 +57,9 @@ ax.plot(df['TotalEnvInteracts'], smooth_mean, label='Reward', color='red')
 # ax.plot(df.index, min, label='Min Reward', alpha=0.5, linewidth=0.7, color='red')
 
 
-plt.title("Normalized Resource Utilization vs Time Steps")
+plt.title("Resource Utilization vs Time Steps")
 plt.xlabel("Steps Taken (1e7)")
-plt.ylabel("Reward")
+plt.ylabel("Resource Utilization")
 
 plt.show()
 # plt.savefig(dir+"reward.png")
