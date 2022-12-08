@@ -1,0 +1,18 @@
+Description:
+    Filename:
+        exptype_compcount_metric
+    Experiment types:
+        std:
+            Initial Expert Selection
+        op:
+            Initial Overprovisioning
+        up:
+            Initial Underprovisioning
+    Metric Type:
+        rewards:
+            Colours:
+                Each thread has a different colour
+            Solid lines:
+                Average Utilization at each timestep
+            NOTE:
+                1e4 timesteps = 1 epoch

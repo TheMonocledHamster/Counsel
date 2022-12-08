@@ -1,0 +1,23 @@
+Description:
+    Filename:
+        exptype_compcount_metric
+    Experiment types:
+        std:
+            Initial Expert Selection
+        op:
+            Initial Overprovisioning
+        up:
+            Initial Underprovisioning
+    Metric Type:
+        actions_steps:
+            Dotted lines:
+                Total Steps
+            Solid lines:
+                Total Add/Remove Actions
+            Colours:
+                Each thread has a different colour
+        rewards:
+            Colours:
+                Each thread has a different colour
+            Solid lines:
+                Average Utilization at each episode
