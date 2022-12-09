@@ -3,11 +3,24 @@ import os
 import numpy as np
 from source.synthetic import set_slo
 from source.rl import RL
+import argparse
 
 
 hp_file = "source/configs/hyperparams.json"
 hp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), hp_file)
 hyperparams = json.load(open(hp_file, "r"))
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-n',"--exp_name", help="exp name", type=str)
+parser.add_argument('-c',"--clip_ratio", help="clip ratio (epsilon)", type=str)
+args = parser.parse_args()
+
+if args.exp_name:
+    hyperparams["exp_name"] = args.exp_name
+if args.clip_ratio:
+    hyperparams["clip_ratio"] = float(args.clip_ratio)
+
 
 slo = int(np.exp(np.random.randint(240,840)/100))
 freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
