@@ -13,7 +13,8 @@ hyperparams = json.load(open(hp_file, "r"))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n',"--exp_name", help="exp name", type=str)
-parser.add_argument('-c',"--clip_ratio", help="clip ratio (epsilon)", type=str)
+parser.add_argument('-c',"--clip_ratio", help="clip ratio (epsilon)", type=float)
+parser.add_argument('-k', "--knob", help="knob", type=float)
 args = parser.parse_args()
 
 if args.exp_name:
