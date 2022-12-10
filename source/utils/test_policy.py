@@ -2,10 +2,12 @@ import joblib
 import os
 import os.path as osp
 import torch
-from .logx import EpochLogger
+import sys
+sys.path.insert(0, '../../')
+from source.utils.logx import EpochLogger
 
 
-def load_policy_and_env(fpath, itr='last', deterministic=False):
+def load_policy_and_env(fpath, itr='last'):
 
     # handle which epoch to load from
     if itr=='last':
@@ -25,7 +27,7 @@ def load_policy_and_env(fpath, itr='last', deterministic=False):
         itr = '%d'%itr
 
     # load the get_action function
-    get_action = load_pytorch_policy(fpath, itr, deterministic)
+    get_action = load_pytorch_policy(fpath, itr)
 
     # try to load environment from save
     # (sometimes this will fail because the environment could not be pickled)
@@ -44,7 +46,7 @@ def load_pytorch_policy(fpath, itr):
     fname = osp.join(fpath, 'pyt_save', 'model'+itr+'.pt')
     print('\n\nLoading from %s.\n\n'%fname)
 
-    model = torch.load(fname)
+    model = torch.load(f=fname)
 
     # make function for producing an action given a single state
     def get_action(x, y):

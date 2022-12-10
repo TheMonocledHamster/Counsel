@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 COMP_N = 3
-save_dir = os.path.join(os.path.dirname(__file__), 'charts/episode_wise/')
+save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'charts/episode_wise/')
 
 # Read path to CSV file from command line
 parser = argparse.ArgumentParser()
@@ -17,10 +17,10 @@ if args.log_dir is not None:
     log_dir = args.log_dir
 else:
     raise ValueError("No log directory specified")
-if args.chart_type in ["reward", "steps", "both"]:
+if args.chart_type in ["reward", "steps"]:
     chart_type = args.chart_type
 else:
-    raise ValueError("No valid chart type specified")
+    chart_type = "both"
 
 exp_type = os.path.basename(os.path.normpath(log_dir))
 exp_type = exp_type.split("_")[0]
