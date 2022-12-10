@@ -13,6 +13,7 @@ hyperparams = json.load(open(hp_file, "r"))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n',"--exp_name", help="exp name", type=str)
+parser.add_argument('-e',"--epochs", help="epochs", type=int)
 parser.add_argument('-c',"--clip_ratio", help="clip ratio (epsilon)", type=float)
 parser.add_argument('-k', "--knob", help="knob", type=float)
 parser.add_argument('-ncp', "--ncomp", help="NFV Components", type=int)
@@ -65,7 +66,6 @@ roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim,
               lam=hyperparams["lam"], 
               max_ep_len=hyperparams["max_ep_len"], 
               target_kl=hyperparams["target_kl"], 
-              save_freq=hyperparams["save_freq"]
-              )
+              save_freq=hyperparams["save_freq"])
 
 roboconf.train(algo)
