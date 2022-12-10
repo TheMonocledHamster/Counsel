@@ -7,9 +7,6 @@ from typing import List, Union
 
 from .state import State
 
-flavors_config = os.path.join(os.path.dirname(__file__), 
-                                '../configs/flavors.json')
-
 
 class Component(object):
     """
@@ -38,8 +35,10 @@ class Component(object):
     * update_util(arrival_rate:int, service_rate:int)->None
     : update the queueing theory utilization of the component
     """
-    def __init__(self, name:str, TTL:int=0):
+    def __init__(self, name:str, nconf:int=5, TTL:int=0):
         self.name = name
+        flavors_config = os.path.join(os.path.dirname(__file__), 
+                                f'../configs/flavors{nconf}.json')
         self.flavors = OrderedDict(json.load(open(flavors_config)))
         self.config = Counter()
         

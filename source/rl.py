@@ -11,7 +11,7 @@ from .utils.run_utils import setup_logger_kwargs
 
 class RL(object):
     def __init__(self, slo:float, budget:List[int], overrun_lim:float, 
-                 mode:str, threads:int, model_path:str,
+                 mode:str, threads:int, model_path:str, ncomp:int, nconf:int,
                  # hyperparameters
                  exp_name:str, hidden_sizes:Tuple, num_gnn_layer:int,
                  seed:int, steps_per_epoch:int, epochs:int, max_action:int,
@@ -24,6 +24,8 @@ class RL(object):
         self.budget = budget
         self.overrun_lim = overrun_lim
         self.mode = mode
+        self.ncomp = ncomp
+        self.nconf = nconf
 
         # Model Hyperparameters
         self.num_gnn_layer = num_gnn_layer
@@ -53,7 +55,8 @@ class RL(object):
     def get_env(self):
         self.envs.append(CloudEnv(self.log_dir, self.steps_per_epoch,
                                   self.budget, self.slo,
-                                  self.overrun_lim, self.mode))
+                                  self.overrun_lim, self.mode,
+                                  self.nconf, self.ncomp))
         return self.envs[-1]
 
 

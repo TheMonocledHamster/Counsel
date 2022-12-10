@@ -1,0 +1,22 @@
+{
+    "Firewall":
+    {
+        "5": 2
+    },
+    "LoadBalancer":
+    {
+        "5": 2
+    },
+    "WebServer":
+    {
+        "13": 3
+    },
+    "AppServer":
+    {
+        "13": 3
+    },
+    "Database":
+    {
+        "19": 2
+    }
+}

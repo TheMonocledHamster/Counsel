@@ -15,12 +15,20 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-n',"--exp_name", help="exp name", type=str)
 parser.add_argument('-c',"--clip_ratio", help="clip ratio (epsilon)", type=float)
 parser.add_argument('-k', "--knob", help="knob", type=float)
+parser.add_argument('-ncp', "--ncomp", help="NFV Components", type=int)
+parser.add_argument('-ncf', "--nconf", help="VM Instances", type=int)
 args = parser.parse_args()
 
 if args.exp_name:
     hyperparams["exp_name"] = args.exp_name
 if args.clip_ratio:
     hyperparams["clip_ratio"] = float(args.clip_ratio)
+if args.knob:
+    hyperparams["knob"] = float(args.knob)
+if args.ncomp:
+    hyperparams["ncomp"] = int(args.ncomp)
+if args.nconf:
+    hyperparams["nconf"] = int(args.nconf)
 
 
 slo = int(np.exp(np.random.randint(240,840)/100))
@@ -34,10 +42,13 @@ overrun_lim = hyperparams["budget_relax"]
 mode = hyperparams["mode"]
 threads = hyperparams["threads"]
 model_path = hyperparams["model_path"]
+nconf = hyperparams["nconf"]
+ncomp = hyperparams["ncomp"]
 algo = hyperparams["algo"]
 
 roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim, 
               mode=mode, threads=threads, model_path=model_path, 
+              nconf=nconf, ncomp=ncomp,
               exp_name=hyperparams["exp_name"], 
               hidden_sizes=hyperparams["hidden_sizes"], 
               num_gnn_layer=hyperparams["num_gnn_layer"], 

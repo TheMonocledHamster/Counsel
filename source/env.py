@@ -18,7 +18,8 @@ class CloudEnv(gym.Env):
     def __init__(
                 self, log_dir:str, steps_per_epoch:int,
                 budget:List[int], slo_latency:float,
-                overrun_lim:float, mode:str='synthetic'
+                overrun_lim:float, mode:str='synthetic',
+                nconf:int=5, ncomp:int=3
                 ):
         os.makedirs(log_dir, exist_ok=True)
         self.log_path = os.path.join(log_dir, uuid4().hex+'.csv')
@@ -35,6 +36,8 @@ class CloudEnv(gym.Env):
         self.overrun_lim = overrun_lim
         self.act_type = 0
         self.act_comp = 0
+        self.nconf = nconf
+        self.ncomp = ncomp
 
         self.chain = Chain()
         self.__preprocess()
@@ -58,12 +61,12 @@ class CloudEnv(gym.Env):
 
     def __preprocess(self)->None:
         flavors_file = os.path.join(os.path.dirname(__file__),
-                                './configs/flavors.json')
+                                f'./configs/flavors{self.nconf}.json')
         self.flavors = list(dict(json.load(open(flavors_file))).items())
         conf_file = os.path.join(os.path.dirname(__file__),
-                                    './configs/initial_chain.json')
+                                f'./configs/initial_chain{self.ncomp}.json')
         init_conf = json.load(open(conf_file))
-        self.chain.init_components(init_conf, self.budget)
+        self.chain.init_components(init_conf, self.budget, self.nconf)
         self.components:List[Component] = list(self.chain.components.values())
         for c in self.components:
             c.compute_resources()

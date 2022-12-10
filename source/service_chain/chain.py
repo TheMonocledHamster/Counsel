@@ -26,9 +26,10 @@ class Chain(object):
         return str(graph.edges.data())
 
 
-    def init_components(self, init_conf:dict, budget:List[int])->None:
+    def init_components(self, init_conf:dict, 
+                        budget:List[int], nconf:int=5)->None:
         for component in init_conf:
-            self.components[component] = Component(component)
+            self.components[component] = Component(component, nconf)
             for instance in init_conf[component]:
                 self.components[component].add_instance(
                     instance, init_conf[component][instance]
@@ -105,10 +106,10 @@ if __name__ == '__main__':
     chain = Chain()
     
     file_path = os.path.join(os.path.dirname(__file__),
-                                    '../configs/initial_chain.json')
+                                '../configs/initial_chain3.json')
     init_conf = json.load(open(file_path))
     flavors_file = os.path.join(os.path.dirname(__file__), 
-                                '../configs/flavors.json')
+                                '../configs/flavors5.json')
     flavors = dict(json.load(open(flavors_file))).keys()
     chain.init_components(init_conf,flavors,[110,500])
 

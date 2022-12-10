@@ -1,0 +1,42 @@
+{
+    "Firewall":
+    {
+        "5": 2
+    },
+    "ReverseProxy":
+    {
+        "2": 1
+    },
+    "LoadBalancer":
+    {
+        "5": 2
+    },
+    "WebServer":
+    {
+        "13": 3
+    },
+    "WebServer2":
+    {
+        "19": 2
+    },
+    "AppServer":
+    {
+        "13": 3
+    },
+    "AppServer2":
+    {
+        "19": 2
+    },
+    "Database1":
+    {
+        "19": 2
+    },
+    "Database2":
+    {
+        "19": 2
+    },
+    "Database3":
+    {
+        "19": 2
+    }
+}
