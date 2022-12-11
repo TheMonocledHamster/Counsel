@@ -7,35 +7,42 @@ from cycler import cycler
 
 
 save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'charts/')
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("-e1", "--exp1", type=str)
-# parser.add_argument("-e2", "--exp2", type=str)
-# parser.add_argument("-e3", "--exp3", type=str)
-# args = parser.parse_args()
+NCONFS = [5, 10, 25, 50, 100]
+NCOMPS = [3, 5, 10, 20]
 
 fix = lambda x: 'data/' + x + '/' + x + '_s0/'
 
 # dirs = [args.exp1, args.exp2, args.exp3]
-dirs = [fix('op'), fix('up'), fix('std')]
-titles = ['Overprovisioned', 'Underprovisioned', 'Expert']
-dfs = []
+dirs = [[fix(f'std-f5-c{NCOMPS}') for NCOMPS in NCOMPS],
+        [fix(f'std-f{NCONF}-c3') for NCONF in NCONFS]]
+titles = ['Varying Number of Components', 'Varying Number of Configurations']
+dfs = [[],[]]
+labels = [[f'Components = {ncomp}' for ncomp in NCOMPS], 
+          [f'Configurations = {nconf}' for nconf in NCONFS]]
 
 # Read CSV file
-def read_mod(load_dir):
+def read_mod(load_dir, ncomp):
     load_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), load_dir)
     csv_file = 'progress.csv'
     df = pd.read_csv(load_dir+csv_file, sep='\t', index_col=0)
-    df['Reward'] = gaussian_filter1d(df['AverageEpRet'] * 100 / (df['AverageEpLen'] * 3), sigma=4)
+    df['Reward'] = gaussian_filter1d(df['AverageEpRet'] * 100 / (df['AverageEpLen'] * ncomp), sigma=4)
     return df
 
-for dir in dirs:
-    dfs.append(read_mod(dir))
+for i, dir in enumerate(dirs[0]):
+    try:
+        dfs[0].append(read_mod(dir, NCOMPS[i]))
+    except:
+        pass
+for dir in dirs[1]:
+    try:
+        dfs[1].append(read_mod(dir, 3))
+    except:
+        pass
 
 
 aspect = 1
 n = 1  # number of rows
-m = 3  # numberof columns
+m = 2  # numberof columns
 bottom = 0.1
 left = 0.05
 top = 1. - bottom
@@ -45,7 +52,7 @@ fisasp = (1 - bottom - (1 - top))/float(1 - left - (1 - right))
 wspace = 0.05  # set to zero for no spacing
 hspace = wspace/float(aspect)
 #   fix the figure height
-figheight = 3  # inch
+figheight = 4  # inch
 figwidth = (m + (m-1)*wspace)/float((n+(n-1)*hspace)*aspect)*figheight*fisasp
 plt.rc('axes', prop_cycle=(cycler('color', ['red', 'magenta', 'orange', 'green', 'yellow']) + cycler(
         'linestyle', ['solid', 'dashed', 'dashdot','dotted', 'solid'])))
@@ -61,10 +68,12 @@ for i in range(len(dfs)):
     axes[i].set_ylim([0, 100])
     axes[i].set_xlabel('Interactions')
     axes[i].set_ylabel('Utilization Reward')
-    axes[i].plot(dfs[i]['TotalEnvInteracts'], dfs[i]['Reward'])
+    for df in dfs[i]:
+        axes[i].plot(df['TotalEnvInteracts'], df['Reward'])
     axes[i].grid(True)
     axes[i].set_title(titles[i])
+    axes[i].legend(labels[i], loc = 'upper left', fontsize = 'x-small')
 
 plt.tight_layout()
-plt.savefig(save_dir + 'provisioning.pdf')
+# plt.savefig(save_dir + 'vary_confs.pdf')
 plt.show()

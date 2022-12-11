@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 
 
-save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'charts/hp_eval/')
+save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'charts/')
 
 # Read path to CSV file from command line
 parser = argparse.ArgumentParser()
