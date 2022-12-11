@@ -20,7 +20,7 @@ NCOMPS = 3
 fix = lambda x: 'data/' + x + '/' + x + '_s0/'
 
 # dirs = [args.exp1, args.exp2, args.exp3]
-dirs = [fix('std01'), fix('std02'), fix('std03')]
+dirs = [fix('op'), fix('up'), fix('std')]
 titles = ['Overprovisioned', 'Underprovisioned', 'Expert']
 dfs = []
 
@@ -51,7 +51,7 @@ hspace = wspace/float(aspect)
 figheight = 3  # inch
 figwidth = (m + (m-1)*wspace)/float((n+(n-1)*hspace)*aspect)*figheight*fisasp
 plt.rc('axes', prop_cycle=(cycler('color', ['red', 'magenta', 'orange', 'green', 'yellow']) + cycler(
-        'linestyle', ['solid', 'dashed', 'dashdot','dotted'])))
+        'linestyle', ['solid', 'dashed', 'dashdot','dotted', 'solid'])))
 
 fig, axes = plt.subplots(nrows=n, ncols=m, figsize=(figwidth, figheight))
 plt.subplots_adjust(top=top, bottom=bottom, left=left, right=right,

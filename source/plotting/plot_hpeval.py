@@ -25,6 +25,7 @@ dirs = [[fix('op01'), fix('op02'), fix('op03')],
         [fix('std01'), fix('std02'), fix('std03')]]
 titles = ['Overprovisioned', 'Underprovisioned', 'Expert']
 dfs = [[],[],[]]
+labels = ['Clip_Ratio=0.1', 'Clip_Ratio=0.2', 'Clip_Ratio=0.3']
 
 # Read CSV file
 def read_mod(load_dir):
@@ -77,6 +78,7 @@ for i in range(len(dfs)):
             continue
     axes[i].grid(True)
     axes[i].set_title(titles[i])
+    axes[i].legend(labels, loc='upper left', fontsize='x-small')
 
 plt.tight_layout()
 plt.savefig(save_dir + 'hp_eval.pdf')

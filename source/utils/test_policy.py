@@ -4,7 +4,7 @@ import os.path as osp
 import torch
 import sys
 sys.path.insert(0, '../../')
-from source.utils.logx import EpochLogger
+from .logx import EpochLogger
 
 
 def load_policy_and_env(fpath, itr='last'):
@@ -66,7 +66,7 @@ def run_policy(env, get_action, max_ep_len=None, num_episodes=50):
         "and we can't run the agent in it. :( \n\n Check out the readthedocs " + \
         "page on Experiment Outputs for how to handle this situation."
 
-    logger = EpochLogger()
+    logger = EpochLogger(output_fname='inference.csv')
     obs, r, d, ep_ret, ep_len, n = env.reset(), 0, False, 0, 0, 0
     o, m = obs
     while n < num_episodes:
