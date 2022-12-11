@@ -53,7 +53,7 @@ def load_pytorch_policy(fpath, itr):
         with torch.no_grad():
             x = torch.as_tensor(x, dtype=torch.float32)
             y = torch.as_tensor(y, dtype=torch.float32)
-            action = model.act(x, y)
+            action, _, _ = model.step(x, y)
         return action
 
     return get_action
@@ -72,8 +72,7 @@ def run_policy(env, get_action, max_ep_len=None, num_episodes=50):
     while n < num_episodes:
 
         a = get_action(o, m)
-        obs, r, d, _ = env.step(a)
-        o, m = obs
+        o, m, r, d, _ = env.step(a)
         ep_ret += r
         ep_len += 1
 

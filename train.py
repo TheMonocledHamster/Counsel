@@ -30,6 +30,8 @@ if args.ncomp:
     hyperparams["ncomp"] = int(args.ncomp)
 if args.nconf:
     hyperparams["nconf"] = int(args.nconf)
+if args.epochs:
+    hyperparams["epochs"] = int(args.epochs)
 
 
 slo = int(np.exp(np.random.randint(240,840)/100))

@@ -7,7 +7,7 @@ freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
 knob = 0.05 # For over, under and near provisioning
 print(f"SLO: {slo}, Freq: {freq}, Knob: {knob}")
 
-env = CloudEnv("_", 2048, [120,480], slo, 0.2, 'synthetic', 25, 5)
+env = CloudEnv("_", 2048, [120,480], slo, 0.2, 'synthetic', 5, 3)
 set_slo(slo, freq, knob)
 set_base(env.components)
 for i in range(15):

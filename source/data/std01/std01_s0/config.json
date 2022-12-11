@@ -10,12 +10,12 @@
     "actor_critic":	"GCNActorCritic",
     "clip_ratio":	0.1,
     "env_fn":	"get_env",
-    "epochs":	1000,
+    "epochs":	500,
     "exp_name":	"std01",
     "gamma":	0.95,
     "lam":	0.97,
     "logger":	{
-        "<source.utils.logx.EpochLogger object at 0x7f9cff8644c0>":	{
+        "<source.utils.logx.EpochLogger object at 0x7f095bc78640>":	{
             "epoch_dict":	{
                 "ClipFrac":	[],
                 "DeltaLossPi":	[],
