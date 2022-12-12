@@ -68,7 +68,7 @@ for i in range(len(dfs)):
     axes[i].set_ylim([0, 100])
     axes[i].set_xlim([0, 5e6])
     axes[i].set_xlabel('Training Steps')
-    axes[i].set_ylabel('Utilization Reward %')
+    axes[i].set_ylabel('Resource Utilization %')
     for df in dfs[i]:
         axes[i].plot(df['TotalEnvInteracts'], df['Reward'])
     axes[i].grid(True)

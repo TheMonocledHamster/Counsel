@@ -57,6 +57,7 @@ class CloudEnv(gym.Env):
         self.episode_counter = 0
         self.episode_reward = 1e-8
         self.BASE_RWD = 1e-4
+        self.epoch_done = False
         
 
     def __preprocess(self)->None:
@@ -139,7 +140,7 @@ class CloudEnv(gym.Env):
         comp = self.components[self.act_comp]
 
         if action != 0 and self.act_comp != -1:
-            invalid_flag = (comp.add_instance(act_flavor) if self.act_type
+            _ = (comp.add_instance(act_flavor) if self.act_type
                             else comp.del_instance(act_flavor))
         
         self.action_counter += min(action, 1)
@@ -184,6 +185,9 @@ class CloudEnv(gym.Env):
 
         if self.step_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
+            self.epoch_done = True
+        
+        if self.epoch_done and self.step_counter > self.ncomp * 10:
             done = True
 
         if done:
@@ -204,6 +208,7 @@ class CloudEnv(gym.Env):
     def reset(self)->None:
         self.chain.reset()
         self.__preprocess()
+        self.epoch_done = False
         return self.get_obs()
 
 

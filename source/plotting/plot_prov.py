@@ -60,7 +60,7 @@ for i in range(len(dfs)):
     axes[i].set_xticks(xTicks)
     axes[i].set_ylim([0, 100])
     axes[i].set_xlabel('Training Steps')
-    axes[i].set_ylabel('Utilization Reward %')
+    axes[i].set_ylabel('Resource Utilization %')
     axes[i].plot(dfs[i]['TotalEnvInteracts'], dfs[i]['Reward'])
     axes[i].grid(True)
     axes[i].set_title(titles[i])
