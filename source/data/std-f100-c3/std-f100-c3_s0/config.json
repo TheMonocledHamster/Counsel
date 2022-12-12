@@ -1,0 +1,60 @@
+{
+    "ac_kwargs":	{
+        "graph_encoder_hidden":	256,
+        "hidden_sizes":	[
+            64,
+            64
+        ],
+        "num_gnn_layer":	2
+    },
+    "actor_critic":	"GCNActorCritic",
+    "clip_ratio":	0.2,
+    "env_fn":	"get_env",
+    "epochs":	500,
+    "exp_name":	"std-f100-c3",
+    "gamma":	0.95,
+    "lam":	0.97,
+    "logger":	{
+        "<source.utils.logx.EpochLogger object at 0x7f1fe1168640>":	{
+            "epoch_dict":	{
+                "ClipFrac":	[],
+                "DeltaLossPi":	[],
+                "DeltaLossV":	[],
+                "Entropy":	[],
+                "EpLen":	[],
+                "EpRet":	[],
+                "Epoch":	[],
+                "KL":	[],
+                "LossPi":	[],
+                "LossV":	[],
+                "StopIter":	[],
+                "Time":	[],
+                "TotalEnvInteracts":	[],
+                "VVals":	[]
+            },
+            "exp_name":	"std-f100-c3",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/home/adi/Work/RoboConf/source/data/std-f100-c3/std-f100-c3_s0",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/home/adi/Work/RoboConf/source/data/std-f100-c3/std-f100-c3_s0/progress.csv' mode='w' encoding='UTF-8'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"std-f100-c3",
+        "output_dir":	"/home/adi/Work/RoboConf/source/data/std-f100-c3/std-f100-c3_s0"
+    },
+    "max_ep_len":	1440,
+    "pi_lr":	0.0003,
+    "save_freq":	10,
+    "seed":	0,
+    "steps_per_epoch":	10000,
+    "target_kl":	0.05,
+    "train_pi_iters":	80,
+    "train_v_iters":	80,
+    "vf_lr":	0.001
+}

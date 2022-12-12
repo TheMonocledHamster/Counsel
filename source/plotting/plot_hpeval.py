@@ -69,8 +69,8 @@ for i in range(len(dfs)):
     axes[i].set_xticks(xTicks)
     axes[i].set_xlim([0, 5e6])
     axes[i].set_ylim([0, 100])
-    axes[i].set_xlabel('Interactions')
-    axes[i].set_ylabel('Utilization Reward')
+    axes[i].set_xlabel('Training Steps')
+    axes[i].set_ylabel('Utilization Reward %')
     for df in dfs[i]:
         try:
             axes[i].plot(df['TotalEnvInteracts'], df['Reward'])
