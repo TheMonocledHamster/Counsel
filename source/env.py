@@ -22,7 +22,7 @@ class CloudEnv(gym.Env):
                 nconf:int=5, ncomp:int=3
                 ):
         os.makedirs(log_dir, exist_ok=True)
-        self.log_path = os.path.join(log_dir, uuid4().hex+'.csv')
+        self.log_path = os.path.join(log_dir, f'f{nconf}-c{ncomp}.csv')
         with open(self.log_path, 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(['episode', 'steps', 'actions', 'episode_reward'])

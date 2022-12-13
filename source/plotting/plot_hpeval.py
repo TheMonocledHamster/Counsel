@@ -32,7 +32,7 @@ def read_mod(load_dir):
     load_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), load_dir)
     csv_file = 'progress.csv'
     df = pd.read_csv(load_dir+csv_file, sep='\t', index_col=0)
-    df['Reward'] = gaussian_filter1d(df['AverageEpRet'] * 100/ (df['AverageEpLen'] * NCOMPS), sigma=4)
+    df['Reward'] = df['AverageEpRet']/ (df['AverageEpLen'] * NCOMPS)
     return df
 
 for i, _dirs in enumerate(dirs):
@@ -68,9 +68,9 @@ xTicks = [0, 1e6, 2e6, 3e6, 4e6, 5e6]
 for i in range(len(dfs)):
     axes[i].set_xticks(xTicks)
     axes[i].set_xlim([0, 5e6])
-    axes[i].set_ylim([0, 100])
+    axes[i].set_ylim([0, 1])
     axes[i].set_xlabel('Training Steps')
-    axes[i].set_ylabel('Resource Utilization %')
+    axes[i].set_ylabel('Average Reward/Component')
     for df in dfs[i]:
         try:
             axes[i].plot(df['TotalEnvInteracts'], df['Reward'])

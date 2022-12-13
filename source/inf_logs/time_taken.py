@@ -13,7 +13,10 @@ for root, dirs, files in os.walk(dir):
         if file.endswith('.csv') and file.startswith('_') and file != 'time_tracker.csv':
             df = pd.read_csv(root+'/'+file, index_col=0)
             dir_name  = root.split('/')[-1]
-            tracker.loc[tracker['Name'] == dir_name, 'Steps'] = df['steps'].sum()
+            try:
+                tracker.loc[tracker['Name'] == dir_name, 'Steps'] = df['steps'].sum()
+            except:
+                print(dir_name)
 
 tracker['Infer Time per Step'] = tracker['Time'] / tracker['Steps']
 tracker.to_csv(dir+'/infer_time.csv')
