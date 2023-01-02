@@ -25,7 +25,9 @@ class CloudEnv(gym.Env):
         self.log_path = os.path.join(log_dir, f'f{nconf}-c{ncomp}.csv')
         with open(self.log_path, 'w+') as f:
             writer = csv.writer(f)
-            writer.writerow(['episode', 'steps', 'actions', 'episode_reward'])
+            writer.writerow(['episode', 'steps', 'actions', 'episode_reward', 
+                             'start_util', 'end_util', 'slo_breach', 
+                             'budget_overrun'])
         if mode not in ['synthetic', 'live']:
             raise ValueError('Invalid mode')
         self.mode = mode
@@ -59,6 +61,8 @@ class CloudEnv(gym.Env):
         self.BASE_RWD = 1e-4
         self.start_util = 0
         self.end_util = 0
+        self.slo_breach = 0
+        self.budget_overrun = 0
         self.epoch_done = False
         
 
@@ -173,9 +177,11 @@ class CloudEnv(gym.Env):
         # check for violations
         if (lat_viol:=(latency/self.slo_latency)) > 1:
             reward **= lat_viol
+            self.slo_breach += 1
         overrun = self.chain.get_budget_overrun()
         if (b_viol:=(overrun/(self.overrun_lim+sys.float_info.min))) > 1:
             reward **= (b_viol+1)/2
+            self.budget_overrun += 1
         if invalid_flag:
             reward *= 0.5
         if reward == self.BASE_RWD:
@@ -205,7 +211,9 @@ class CloudEnv(gym.Env):
                                  self.action_counter,
                                  self.episode_reward,
                                  self.start_util,
-                                 self.end_util])
+                                 self.end_util,
+                                 self.slo_breach,
+                                 self.budget_overrun])
             self.prev_steps = self.step_counter
             self.episode_reward = 1e-8
             self.action_counter = 0
