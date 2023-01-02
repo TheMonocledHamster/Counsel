@@ -57,6 +57,8 @@ class CloudEnv(gym.Env):
         self.episode_counter = 0
         self.episode_reward = 1e-8
         self.BASE_RWD = 1e-4
+        self.start_util = 0
+        self.end_util = 0
         self.epoch_done = False
         
 
@@ -183,11 +185,15 @@ class CloudEnv(gym.Env):
         
         self.episode_reward += reward
 
+        if self.step_counter - self.prev_steps == 1:
+            self.start_util = np.mean([comp.util for comp in self.components])
+
         if self.step_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
             self.epoch_done = True
         
         if self.epoch_done and self.step_counter > self.ncomp * 10:
+            self.end_util = np.mean([comp.util for comp in self.components])
             done = True
 
         if done:
@@ -197,7 +203,9 @@ class CloudEnv(gym.Env):
                 writer.writerow([self.episode_counter,
                                  self.step_counter - self.prev_steps,
                                  self.action_counter,
-                                 self.episode_reward])
+                                 self.episode_reward,
+                                 self.start_util,
+                                 self.end_util])
             self.prev_steps = self.step_counter
             self.episode_reward = 1e-8
             self.action_counter = 0
