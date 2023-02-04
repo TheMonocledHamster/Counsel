@@ -15,9 +15,10 @@ RUN pip3 install --no-cache-dir -r requirements.txt && \
     mkdir /Counsel
 
 WORKDIR /Counsel
-COPY model /model
-COPY train.py .
-COPY eval.sh .
+COPY model/         \
+     train.py       \
+     eval.sh        \
+     ./
 
 USER nobody
 
