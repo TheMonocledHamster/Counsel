@@ -44,13 +44,12 @@ budget = hyperparams["budget"]
 overrun_lim = hyperparams["budget_relax"]
 mode = hyperparams["mode"]
 threads = hyperparams["threads"]
-model_path = hyperparams["model_path"]
 nconf = hyperparams["nconf"]
 ncomp = hyperparams["ncomp"]
 algo = hyperparams["algo"]
 
 roboconf = RL(slo=slo, budget=budget, overrun_lim=overrun_lim, 
-              mode=mode, threads=threads, model_path=model_path, 
+              mode=mode, threads=threads, 
               nconf=nconf, ncomp=ncomp,
               exp_name=hyperparams["exp_name"], 
               hidden_sizes=hyperparams["hidden_sizes"], 
