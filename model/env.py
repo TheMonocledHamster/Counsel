@@ -15,6 +15,36 @@ from .synthetic import call_load_server, set_base
 
 
 class CloudEnv(gym.Env):
+    """
+    Extended gym.Env to model deployment of service chains.
+
+    Params
+    * log_dir (str)
+    : Directory to save logs.
+    * steps_per_epoch (int)
+    : Number of steps per epoch.
+    * budget (List[int])
+    : Budget for each configuration.
+    * slo_latency (float)
+    : SLO for latency.
+    * overrun_lim (float)
+    : Overrun limit for budget.
+    * mode (str)
+    : Mode of operation. Can be 'synthetic' (testing) or 'live'(deployed).
+    * nconf (int)
+    : Number of configurations.
+    * ncomp (int)
+    : Number of components in each configuration.
+
+    Returns
+    * Gym Environment
+
+    Methods
+    * step(action)->Tuple(np.array, float, bool, dict)
+    : Takes an action and returns the next state and reward.
+    * reset()->np.array
+    : Resets the environment and returns the initial state.
+    """
     def __init__(
                 self, log_dir:str, steps_per_epoch:int,
                 budget:List[int], slo_latency:float,
@@ -111,7 +141,7 @@ class CloudEnv(gym.Env):
         return ob, mask
 
 
-    def calculate_reward(self, action:int)->float:
+    def _calculate_reward(self, action:int)->float:
         comp:Component = self.components[self.act_comp]
         upsilon_i = min(comp.util, 1)
         upsilon_k = min(sum([ocomp.util for ocomp in self.components]),
@@ -131,7 +161,7 @@ class CloudEnv(gym.Env):
         reward = upsilon_k + upsilon_i*(rwd_cpu + rwd_mem)/2
         reward = max(0.01, reward)
 
-        # Max Possible Reward = comp_count
+        # Max Possible Reward is comp_count
         return reward
 
 
@@ -156,7 +186,7 @@ class CloudEnv(gym.Env):
             metrics = call_load_server([comp.cpu for comp in self.components],
                                        [comp.mem for comp in self.components])
         else:
-            metrics = None #TODO: Call Orchestrator
+            metrics = None # Not implemented in this version
 
         arrival_rate = metrics[0]
         cutils = metrics[1]
@@ -185,7 +215,7 @@ class CloudEnv(gym.Env):
         if invalid_flag:
             reward *= 0.5
         if reward == self.BASE_RWD:
-            reward = self.calculate_reward(action) # Guaranteed reward >= 0.01
+            reward = self._calculate_reward(action) # Guaranteed reward >= 0.01
         
         reward = max(1e-40, reward)
         
@@ -229,5 +259,5 @@ class CloudEnv(gym.Env):
 
 
     def terminate(self)->None:
-        # TODO ?
+        # PLACEHOLDER
         pass

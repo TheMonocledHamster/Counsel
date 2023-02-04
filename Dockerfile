@@ -10,11 +10,15 @@ RUN apt-get update && \
 
 # Install Python packages
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt && \
+    rm requirements.txt && \
+    mkdir /Counsel
 
+WORKDIR /Counsel
 COPY model /model
 COPY train.py .
+COPY eval.sh .
 
 USER nobody
 
-CMD ["python3", "train.py"]
+CMD ["bash", "eval.sh"]

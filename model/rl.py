@@ -10,6 +10,10 @@ from .utils.run_utils import setup_logger_kwargs
 
 
 class RL(object):
+    """
+    RL Agent for Service Chain
+
+    """
     def __init__(self, slo:float, budget:List[int], overrun_lim:float, 
                  mode:str, threads:int, ncomp:int, nconf:int,
                  # hyperparameters

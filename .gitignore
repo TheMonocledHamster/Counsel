@@ -130,9 +130,9 @@ dmypy.json
 
 .vscode/
 
-charts/
-data/
-docs/
-inf_logs/
-infer_logs/
-logs/
+charts/*
+data/*
+docs/*
+inf_logs/*
+infer_logs/*
+logs/*

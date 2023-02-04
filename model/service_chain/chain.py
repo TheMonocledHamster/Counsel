@@ -14,7 +14,7 @@ from .state import State
 
 class Chain(object):
     """
-        Representation of Computation Chain as a graph
+    Representation of Computation Chain as a Graph
     """
     def __init__(self):
         self.components = OrderedDict() # Set of components
