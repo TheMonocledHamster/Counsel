@@ -2,8 +2,8 @@ import os
 import time
 import csv
 
-from source.utils.test_policy import load_policy_and_env, run_policy
-from source.synthetic import set_slo
+from model.utils.test_policy import load_policy_and_env, run_policy
+from model.synthetic import set_slo
 
 NCONFS = [5, 10, 25, 50, 100]
 NCOMPS = [3, 5, 10, 20]
@@ -17,8 +17,8 @@ for name, knob in [('op',0.03), ('std',0.05), ('up',0.07)]:
 
     time_tracker = []
 
-    dir = '/home/adi/Work/RoboConf/source/data/'
-    out_dir = '/home/adi/Work/RoboConf/source/infer_logs/'
+    dir = './data/'
+    out_dir = './infer_logs/'
     out_path = os.path.join(out_dir, 'inference.csv')
     fix = lambda x: x + '/' + x + '_s0/'
     
@@ -49,7 +49,7 @@ for name, knob in [('op',0.03), ('std',0.05), ('up',0.07)]:
 
             time_tracker.append([name, nconf, ncomp, end - start])
 
-    with open(f'source/infer_logs/time_tracker_{name}.csv', 'a') as f:
+    with open(f'./infer_logs/time_tracker_{name}.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(['Name', 'Configs', 'Components', 'Time'])
         writer.writerows(time_tracker)

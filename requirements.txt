@@ -1,0 +1,11 @@
+torch==1.12.1
+gym==0.26.2
+networkx==2.8.6
+scipy==1.7.3
+numpy==1.23.3
+fastapi==0.87.0
+uvicorn==0.20.0
+requests==2.25.1
+psycopg2-binary==2.9.5
+joblib==1.2.0
+seaborn==0.12.2

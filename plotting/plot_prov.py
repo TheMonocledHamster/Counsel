@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 from scipy.ndimage import gaussian_filter1d
-import argparse
 import matplotlib.pyplot as plt
 from cycler import cycler
 

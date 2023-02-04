@@ -1,5 +1,5 @@
 {
-    "exp_name": "test",
+    "exp_name": "eval",
     "threads": 4,
     "budget": [600, 900],
     "budget_relax": 0.2,

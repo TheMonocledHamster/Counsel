@@ -1,12 +1,12 @@
 import json
 import os
 import numpy as np
-from source.synthetic import set_slo
-from source.rl import RL
+from model.synthetic import set_slo
+from model.rl import RL
 import argparse
 
 
-hp_file = "source/configs/hyperparams.json"
+hp_file = "model/configs/hyperparams.json"
 hp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), hp_file)
 hyperparams = json.load(open(hp_file, "r"))
 

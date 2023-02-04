@@ -3,8 +3,8 @@ import time
 import csv
 import numpy as np
 
-from source.utils.test_policy import load_policy_and_env, run_policy
-from source.synthetic import set_slo
+from model.utils.test_policy import load_policy_and_env, run_policy
+from model.synthetic import set_slo
 
 NCONFS = [5, 10, 25, 50, 100]
 NCOMPS = [3, 5, 10, 20]
@@ -18,8 +18,8 @@ set_slo(slo, freq, knob)
 
 time_tracker = []
 
-dir = '/home/adi/Work/RoboConf/source/data/'
-out_dir = '/home/adi/Work/RoboConf/source/inf_logs/'
+dir = './data/'
+out_dir = './inf_logs/'
 out_path = os.path.join(out_dir, 'inference.log')
 fix = lambda x: x + '/' + x + '_s0/'
 
@@ -74,7 +74,7 @@ for nconf in NCONFS:
 
     time_tracker.append([name, end - start])
 
-with open('source/inf_logs/time_tracker.csv', 'w') as f:
+with open('./inf_logs/time_tracker.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['Name', 'Time'])
     writer.writerows(time_tracker)

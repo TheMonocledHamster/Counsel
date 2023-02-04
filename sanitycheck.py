@@ -1,6 +1,6 @@
 import numpy as np
-from source.env import CloudEnv
-from source.synthetic import set_slo, set_base
+from model.env import CloudEnv
+from model.synthetic import set_slo, set_base
 
 slo = int(np.exp(np.random.randint(240,840)/100))
 freq = int(1e6 / np.random.randint(int(slo*0.8), int(slo*1.2)))
