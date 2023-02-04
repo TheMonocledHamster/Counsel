@@ -9,3 +9,4 @@ requests==2.25.1
 psycopg2-binary==2.9.5
 joblib==1.2.0
 cycler==0.11.0
+mpi4py==3.1.1

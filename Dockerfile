@@ -15,11 +15,14 @@ RUN pip3 install --no-cache-dir -r requirements.txt && \
     mkdir /Counsel
 
 WORKDIR /Counsel
-COPY model/         \
-     train.py       \
-     eval.sh        \
+COPY model              \
+     train.py           \
+     model_eval.sh      \
+     plotting           \
+     inference.py       \
      ./
 
 USER nobody
 
-CMD ["bash", "eval.sh"]
+CMD ["bash", "model_eval.sh", "&&", \
+     "python3", "inference.py"]
