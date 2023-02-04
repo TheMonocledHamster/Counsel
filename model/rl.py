@@ -11,7 +11,7 @@ from .utils.run_utils import setup_logger_kwargs
 
 class RL(object):
     def __init__(self, slo:float, budget:List[int], overrun_lim:float, 
-                 mode:str, threads:int, model_path:str, ncomp:int, nconf:int,
+                 mode:str, threads:int, ncomp:int, nconf:int,
                  # hyperparameters
                  exp_name:str, hidden_sizes:Tuple, num_gnn_layer:int,
                  seed:int, steps_per_epoch:int, epochs:int, max_action:int,

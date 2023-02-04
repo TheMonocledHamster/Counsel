@@ -129,3 +129,10 @@ dmypy.json
 .pyre/
 
 .vscode/
+
+charts/
+data/
+docs/
+inf_logs/
+infer_logs/
+logs/

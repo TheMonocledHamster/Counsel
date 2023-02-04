@@ -14,7 +14,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY model /model
 COPY train.py .
-COPY inference.py .
+
 
 USER nobody
 

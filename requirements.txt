@@ -8,4 +8,4 @@ uvicorn==0.20.0
 requests==2.25.1
 psycopg2-binary==2.9.5
 joblib==1.2.0
-seaborn==0.12.2
+cycler==0.11.0

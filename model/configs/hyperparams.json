@@ -4,7 +4,6 @@
     "budget": [600, 900],
     "budget_relax": 0.2,
     "mode": "synthetic",
-    "model_path": "./data/",
     "knob": 0.05,
     "nconf": 5,
     "ncomp": 3,
