@@ -1,12 +1,13 @@
 torch==1.12.1
 gym==0.26.2
 networkx==2.8.6
-scipy==1.7.3
+scipy==1.9.1
 numpy==1.23.3
 fastapi==0.87.0
 uvicorn==0.20.0
 requests==2.25.1
 psycopg2-binary==2.9.5
 joblib==1.2.0
-cycler==0.11.0
 mpi4py==3.1.1
+psutil==5.9.3
+tqdm==4.64.1
