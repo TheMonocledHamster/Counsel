@@ -47,7 +47,7 @@ class RL(object):
         
         log_dir_name_list = [self.exp_name,int(time.time())]
         self.log_dir = '_'.join([str(i) for i in log_dir_name_list])
-        self.log_dir = os.path.join(os.path.dirname(__file__), 'logs/', self.log_dir)
+        self.log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs/', self.log_dir)
         self.envs = []
         self.threads = threads
 
