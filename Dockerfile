@@ -15,7 +15,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY model /model
 COPY train.py .
 
-
 USER nobody
 
 CMD ["python3", "train.py"]

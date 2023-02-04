@@ -81,5 +81,5 @@ for i in range(len(dfs)):
     axes[i].legend(labels, loc='upper left', fontsize='x-small')
 
 plt.tight_layout()
-plt.savefig(save_dir + 'hp_eval.pdf')
+plt.savefig(save_dir + 'hp.pdf')
 plt.show()
