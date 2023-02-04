@@ -18,14 +18,14 @@ RUN pip3 install -U pip && \
     mkdir /counsel
 
 WORKDIR /counsel
-COPY model /counsel//model
+COPY model /counsel/model
 COPY train.py           \
      model_eval.sh      \
      inference.py       \
      /counsel/
 
-# ENV OMPI_ALLOW_RUN_AS_ROOT=1 \
-#     OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_ALLOW_RUN_AS_ROOT=1 \
+    OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 CMD ["bash", "model_eval.sh", "&&", \
      "python3", "inference.py"]
