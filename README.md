@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/553064046.svg)](https://zenodo.org/badge/latestdoi/553064046)
 
-Descriptive steps to reproduce COUNSEL:
+Steps to reproduce COUNSEL:
 
 1.  Clone repository from Github or Zenodo.\
     [https://github.com/TheMonocledHamster/Counsel\
