@@ -41,11 +41,11 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         act_comp = -1
         flag = False
         for i in range(len(cpu)):
-            if lcpu[i] * 0.95 > cpu[i] or lmem[i] * 0.95 > mem[i]:
+            if lcpu[i] * 0.85 > cpu[i] or lmem[i] * 0.85 > mem[i]:
                 flag = True
                 act_type = 1
                 act_comp = i
-            elif lcpu[i] < cpu[i]*0.6 and lmem[i] < mem[i]*0.6 and not flag:
+            elif lcpu[i] < cpu[i]*0.5 and lmem[i] < mem[i]*0.5 and not flag:
                 flag = True
                 act_comp = i
 
