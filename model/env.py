@@ -91,6 +91,7 @@ class CloudEnv(gym.Env):
         self.BASE_RWD = 1e-4
         self.start_util = 0
         self.end_util = 0
+        self.cur_util_list = [0 for _ in range(5)]
         self.slo_breach = 0
         self.budget_overrun = 0
         self.epoch_done = False
@@ -170,6 +171,9 @@ class CloudEnv(gym.Env):
         info = {}
 
         self.step_counter += 1
+        self.cur_util_list[self.step_counter % 5] = \
+            np.mean([comp.util for comp in self.components])
+
         action = int(action)
         act_flavor = self.flavors[action][0]
 
@@ -233,11 +237,7 @@ class CloudEnv(gym.Env):
             self.epoch_done = True
         
         if self.epoch_done and self.step_counter > self.ncomp * 10:
-            self.end_util = np.mean([comp.util for comp in self.components])
-            if self.end_util < 0:
-                self.end_util = 0
-            elif self.end_util > 1:
-                self.end_util = 1
+            self.end_util = np.mean(self.cur_util_list)
             done = True
 
         if done:
