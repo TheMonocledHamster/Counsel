@@ -52,6 +52,11 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
         loadc = [lcpu[i]/(cpu[i]+1e-7) for i in range(len(cpu))]
         loadm = [lmem[i]/(mem[i]+1e-7) for i in range(len(mem))]
 
+        loadc = [min(1, loadc[i]) for i in range(len(loadc))]
+        loadc = [max(0, loadc[i]) for i in range(len(loadc))]
+        loadm = [min(1, loadm[i]) for i in range(len(loadm))]
+        loadm = [max(0, loadm[i]) for i in range(len(loadm))]
+
         rho = np.sqrt((np.mean(loadc)**2 + np.mean(loadm)**2)/2)
 
         if rho < 1:
