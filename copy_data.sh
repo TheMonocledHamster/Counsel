@@ -1,8 +1,8 @@
 !/bin/sh
 
-docker cp counsel:/Counsel/data .
-docker cp counsel:/Counsel/logs .
-docker cp counsel:/Counsel/infer_logs .
-docker cp counsel:/Counsel/inf_logs .
+docker cp counsel:/counsel/data .
+docker cp counsel:/counsel/logs .
+docker cp counsel:/counsel/infer_logs .
+docker cp counsel:/counsel/inf_logs .
 
 mkdir -p charts
