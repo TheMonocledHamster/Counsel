@@ -233,11 +233,11 @@ class CloudEnv(gym.Env):
             self.epoch_done = True
         
         if self.epoch_done and self.step_counter > self.ncomp * 10:
-            self.end_util = np.mean(self.cur_util_list)
             done = True
 
         if done:
             self.episode_counter += 1
+            self.end_util = np.mean(self.cur_util_list)
             with open(self.log_path, 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow([self.episode_counter,
