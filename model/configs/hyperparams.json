@@ -1,6 +1,6 @@
 {
     "exp_name": "eval",
-    "threads": 4,
+    "threads": 10,
     "budget": [600, 900],
     "budget_relax": 0.2,
     "mode": "synthetic",
