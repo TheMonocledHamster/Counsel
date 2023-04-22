@@ -1,6 +1,7 @@
 import requests
 import numpy as np
 from typing import List, Tuple
+import time
 from .service_chain.component import Component
 
 
@@ -30,6 +31,7 @@ def call_load_server(cpu:List[int], mem:List[int])->Tuple:
     while True:
         url = "http://localhost:8000/load"
         metrics = requests.get(url).json()
+        time.sleep(0.01)
 
         arrival_rate = metrics["arrival_rate"]
         lcpu = np.array(metrics["load"][0])
