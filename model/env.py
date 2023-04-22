@@ -227,6 +227,10 @@ class CloudEnv(gym.Env):
 
         if self.step_counter - self.prev_steps == 1:
             self.start_util = np.mean([comp.util for comp in self.components])
+            if self.start_util < 0:
+                self.start_util = 0
+            elif self.start_util > 1:
+                self.start_util = 1
 
         if self.step_counter % self.steps_per_epoch == 0:
             self.epoch_counter += 1
